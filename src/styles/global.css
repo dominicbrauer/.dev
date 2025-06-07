@@ -1,0 +1,33 @@
+@font-face {
+	font-family: InclusiveSans;
+	src: url('../../public/fonts/InclusiveSans-VariableFont_wght.ttf') format("truetype");
+	font-style: normal;
+	font-display: swap;
+	font-weight: 100 900;
+}
+
+:root {
+	--primary: #A20306; /* my birthday is the 20.03.2006 */
+	--primary-rgb: 162, 3, 6;
+	--background: #101010;
+	--background-container: #171616;
+	--text-primary: #FFFFFF;
+	--text-secondary: #B0B4BA;
+	--border: #43484E;
+}
+
+* {
+	font-family: 'InclusiveSans', sans-serif;
+	color: var(--text-primary);
+	margin: 0;
+	box-sizing: border-box;
+	font-weight: 400;
+}
+
+html, body {
+	background-color: var(--background);
+}
+
+h1, h2, h3, h4, h5, h6 {
+	font-weight: 900;
+}
