@@ -3,7 +3,7 @@ import Main from "../layouts/Main.astro";
 ---
 
 <Main>
-	<canvas />
+	<canvas id="canvas" />
 </Main>
 
 <style>
@@ -14,8 +14,18 @@ import Main from "../layouts/Main.astro";
 		left: 50%;
 		transform: translate(-50%, -50%);
 	}
+
+	canvas {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		outline: 2px solid var(--border);
+	}
 </style>
 
 <script>
-
+	const canvas = document.getElementById('canvas') as HTMLCanvasElement;
+	canvas.width = 16 * 40;
+	canvas.height = 16 * 30;
 </script>
