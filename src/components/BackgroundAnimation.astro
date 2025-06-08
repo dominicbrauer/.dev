@@ -1,0 +1,139 @@
+<div class="background-animation-container">
+	<canvas id="background-animation-canvas"></canvas>
+</div>
+
+<script>
+import { detectScriptExecuted } from "astro/virtual-modules/transitions-swap-functions.js";
+
+	let canvas: HTMLCanvasElement;
+	let background: BackgroundAnimation;
+	let animation: number;
+
+	window.onload = () => {
+		canvas = document.getElementById('background-animation-canvas') as HTMLCanvasElement;
+		background = new BackgroundAnimation(canvas);
+		background.animate();
+	};
+
+	window.addEventListener('resize', () => {
+		cancelAnimationFrame(animation);
+		canvas.width = window.innerWidth;
+		canvas.height = window.innerHeight;
+		background = new BackgroundAnimation(canvas);
+		background.animate();
+	});
+
+	class BackgroundAnimation {
+		private readonly signalHeadInstanceCanvas: HTMLCanvasElement = this.initSignalHeadInstance();
+		private canvas: HTMLCanvasElement;
+		private ctx: CanvasRenderingContext2D;
+		private width: number;
+		private height: number;
+		private signalHeads: SignalHead[] = [];
+
+		constructor(canvas: HTMLCanvasElement) {
+			this.canvas = canvas;
+			this.width = this.canvas.width = window.innerWidth;
+			this.height = this.canvas.height = window.innerHeight;
+			this.ctx = canvas.getContext("2d")!;
+			this.ctx.fillStyle = "#ffffff";
+
+			this.signalHeads.push(new SignalHead(Math.floor(this.width * 0.5), Math.floor(this.height * 0.5), 'x'));
+			this.signalHeads.push(new SignalHead(Math.floor(this.width * 0.5), Math.floor(this.height * 0.5), 'x'));
+			this.signalHeads.push(new SignalHead(Math.floor(this.width * 0.5), Math.floor(this.height * 0.5), 'y'));
+			this.signalHeads.push(new SignalHead(Math.floor(this.width * 0.5), Math.floor(this.height * 0.5), 'y'));
+			this.signalHeads.push(new SignalHead(Math.floor(this.width * 0.5), Math.floor(this.height * 0.5), 'x'));
+			this.signalHeads.push(new SignalHead(Math.floor(this.width * 0.5), Math.floor(this.height * 0.5), 'x'));
+			this.signalHeads.push(new SignalHead(Math.floor(this.width * 0.5), Math.floor(this.height * 0.5), 'y'));
+			this.signalHeads.push(new SignalHead(Math.floor(this.width * 0.5), Math.floor(this.height * 0.5), 'y'));
+			this.signalHeads.push(new SignalHead(Math.floor(this.width * 0.5), Math.floor(this.height * 0.5), 'x'));
+			this.signalHeads.push(new SignalHead(Math.floor(this.width * 0.5), Math.floor(this.height * 0.5), 'x'));
+			this.signalHeads.push(new SignalHead(Math.floor(this.width * 0.5), Math.floor(this.height * 0.5), 'y'));
+			this.signalHeads.push(new SignalHead(Math.floor(this.width * 0.5), Math.floor(this.height * 0.5), 'y'));
+			this.signalHeads.push(new SignalHead(Math.floor(this.width * 0.5), Math.floor(this.height * 0.5), 'x'));
+			this.signalHeads.push(new SignalHead(Math.floor(this.width * 0.5), Math.floor(this.height * 0.5), 'x'));
+			this.signalHeads.push(new SignalHead(Math.floor(this.width * 0.5), Math.floor(this.height * 0.5), 'y'));
+			this.signalHeads.push(new SignalHead(Math.floor(this.width * 0.5), Math.floor(this.height * 0.5), 'y'));
+		}
+
+		/**
+		 * 
+		 */
+		private initSignalHeadInstance(): HTMLCanvasElement {
+			const instanceCanvas = document.createElement('canvas');
+			instanceCanvas.width = instanceCanvas.height = 2 * (SignalHead.RADIUS + SignalHead.SHADOW_PADDING);
+			const ctx = instanceCanvas.getContext("2d")!;
+			ctx.fillStyle = SignalHead.COLOR;
+			ctx.shadowBlur = 8;
+			ctx.shadowColor = SignalHead.COLOR;
+			ctx.beginPath();
+			ctx.arc(SignalHead.RADIUS + SignalHead.SHADOW_PADDING, SignalHead.RADIUS + SignalHead.SHADOW_PADDING, SignalHead.RADIUS, 0, 2 * Math.PI);
+			ctx.fill();
+			return instanceCanvas;
+		}
+
+		private draw() {
+			this.signalHeads.forEach((sh) => {
+				this.ctx.drawImage(
+					this.signalHeadInstanceCanvas,
+					sh.centerX - SignalHead.RADIUS - SignalHead.SHADOW_PADDING,
+					sh.centerY - SignalHead.RADIUS - SignalHead.SHADOW_PADDING
+				);
+			});
+		}
+
+		private logic() {
+			const stepsize = 1.25;
+			this.signalHeads.forEach((sh) => {
+				if (sh.centerX < sh.destinationX) {
+					sh.centerX += stepsize;
+					sh.currentAxis = 'x';
+				}
+				if (sh.centerX > sh.destinationX) {
+					sh.centerX -= stepsize;
+					sh.currentAxis = 'x';
+				}
+				if (sh.centerY < sh.destinationY) {
+					sh.centerY += stepsize;
+					sh.currentAxis = 'y';
+				}
+				if (sh.centerY > sh.destinationY) {
+					sh.centerY -= stepsize;
+					sh.currentAxis = 'y';
+				}
+				if (Math.abs(sh.centerX - sh.destinationX) < stepsize && sh.currentAxis === 'x') {
+					sh.centerX = sh.destinationX;
+					sh.destinationY = sh.centerY + Math.pow(-1, Math.floor(Math.random() + 0.5)) * Math.floor(Math.random() * 400);
+				}
+				if (Math.abs(sh.centerY - sh.destinationY) < stepsize && sh.currentAxis === 'y') {
+					sh.centerY = sh.destinationY;
+					sh.destinationX = sh.centerX + Math.pow(-1, Math.floor(Math.random() + 0.5)) * Math.floor(Math.random() * 400);
+				}
+			});
+		}
+
+		public animate() {
+			this.ctx.clearRect(0, 0, this.width, this.height);
+			this.draw();
+			this.logic();
+			animation = requestAnimationFrame(this.animate.bind(this));
+		}
+	};
+
+	class SignalHead {
+		public static readonly RADIUS: number = 8;
+		public static readonly SHADOW_PADDING: number = 16;
+		public static readonly COLOR: string = "#A20306";
+		public centerX: number;
+		public centerY: number;
+		public destinationX: number;
+		public destinationY: number;
+		public currentAxis: string;
+
+		constructor(x: number, y: number, currentAxis: string) {
+			this.centerX = this.destinationX = x;
+			this.centerY = this.destinationY = y;
+			this.currentAxis = currentAxis;
+		}
+	}
+</script>

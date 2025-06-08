@@ -1,31 +1,8 @@
 ---
+import BackgroundAnimation from "../../components/BackgroundAnimation.astro";
 import Main from "../layouts/Main.astro";
 ---
 
 <Main>
-	<canvas id="canvas" />
+	<BackgroundAnimation />
 </Main>
-
-<style>
-	h1 {
-		text-align: center;
-		position: absolute;
-		top: 50%;
-		left: 50%;
-		transform: translate(-50%, -50%);
-	}
-
-	canvas {
-		position: absolute;
-		top: 50%;
-		left: 50%;
-		transform: translate(-50%, -50%);
-		outline: 2px solid var(--border);
-	}
-</style>
-
-<script>
-	const canvas = document.getElementById('canvas') as HTMLCanvasElement;
-	canvas.width = 16 * 40;
-	canvas.height = 16 * 30;
-</script>
