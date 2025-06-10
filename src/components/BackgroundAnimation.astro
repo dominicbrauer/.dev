@@ -3,11 +3,19 @@
 </div>
 
 <script>
-import { detectScriptExecuted } from "astro/virtual-modules/transitions-swap-functions.js";
-
 	let canvas: HTMLCanvasElement;
 	let background: BackgroundAnimation;
 	let animation: number;
+
+	/**
+	 * Maps a value from one range to another.
+	 * @param value 
+	 * @param a start of range
+	 * @param b end of range
+	 * @param c start of new range
+	 * @param d end of new range
+	 */
+	const map = (value: number, a: number, b: number, c: number, d: number) => (value - a) * (d - c) / (b - a) + c;
 
 	window.onload = () => {
 		canvas = document.getElementById('background-animation-canvas') as HTMLCanvasElement;
@@ -25,39 +33,39 @@ import { detectScriptExecuted } from "astro/virtual-modules/transitions-swap-fun
 
 	class BackgroundAnimation {
 		private readonly signalHeadInstanceCanvas: HTMLCanvasElement = this.initSignalHeadInstance();
+
 		private canvas: HTMLCanvasElement;
 		private ctx: CanvasRenderingContext2D;
 		private width: number;
 		private height: number;
 		private signalHeads: SignalHead[] = [];
+		private signalLines: SignalLine[] = [];
 
 		constructor(canvas: HTMLCanvasElement) {
 			this.canvas = canvas;
 			this.width = this.canvas.width = window.innerWidth;
 			this.height = this.canvas.height = window.innerHeight;
 			this.ctx = canvas.getContext("2d")!;
-			this.ctx.fillStyle = "#ffffff";
+			this.ctx.strokeStyle = '#43484E';
 
-			this.signalHeads.push(new SignalHead(Math.floor(this.width * 0.5), Math.floor(this.height * 0.5), 'x'));
-			this.signalHeads.push(new SignalHead(Math.floor(this.width * 0.5), Math.floor(this.height * 0.5), 'x'));
-			this.signalHeads.push(new SignalHead(Math.floor(this.width * 0.5), Math.floor(this.height * 0.5), 'y'));
-			this.signalHeads.push(new SignalHead(Math.floor(this.width * 0.5), Math.floor(this.height * 0.5), 'y'));
-			this.signalHeads.push(new SignalHead(Math.floor(this.width * 0.5), Math.floor(this.height * 0.5), 'x'));
-			this.signalHeads.push(new SignalHead(Math.floor(this.width * 0.5), Math.floor(this.height * 0.5), 'x'));
-			this.signalHeads.push(new SignalHead(Math.floor(this.width * 0.5), Math.floor(this.height * 0.5), 'y'));
-			this.signalHeads.push(new SignalHead(Math.floor(this.width * 0.5), Math.floor(this.height * 0.5), 'y'));
-			this.signalHeads.push(new SignalHead(Math.floor(this.width * 0.5), Math.floor(this.height * 0.5), 'x'));
-			this.signalHeads.push(new SignalHead(Math.floor(this.width * 0.5), Math.floor(this.height * 0.5), 'x'));
-			this.signalHeads.push(new SignalHead(Math.floor(this.width * 0.5), Math.floor(this.height * 0.5), 'y'));
-			this.signalHeads.push(new SignalHead(Math.floor(this.width * 0.5), Math.floor(this.height * 0.5), 'y'));
-			this.signalHeads.push(new SignalHead(Math.floor(this.width * 0.5), Math.floor(this.height * 0.5), 'x'));
-			this.signalHeads.push(new SignalHead(Math.floor(this.width * 0.5), Math.floor(this.height * 0.5), 'x'));
-			this.signalHeads.push(new SignalHead(Math.floor(this.width * 0.5), Math.floor(this.height * 0.5), 'y'));
-			this.signalHeads.push(new SignalHead(Math.floor(this.width * 0.5), Math.floor(this.height * 0.5), 'y'));
+			this.appendRandomlyPlacedSignal(0);
+			this.appendRandomlyPlacedSignal(0);
+			this.appendRandomlyPlacedSignal(0);
+			this.appendRandomlyPlacedSignal(90);
+			this.appendRandomlyPlacedSignal(90);
+			this.appendRandomlyPlacedSignal(90);
+			this.appendRandomlyPlacedSignal(180);
+			this.appendRandomlyPlacedSignal(180);
+			this.appendRandomlyPlacedSignal(180);
+			this.appendRandomlyPlacedSignal(270);
+			this.appendRandomlyPlacedSignal(270);
+			this.appendRandomlyPlacedSignal(270);
 		}
 
 		/**
-		 * 
+		 * Initializes a new canvas containing a signal head instance.
+		 * That canvas can be used similar to a prerendered sticker
+		 * and drawn to the canvas with `ctx.drawImage`.
 		 */
 		private initSignalHeadInstance(): HTMLCanvasElement {
 			const instanceCanvas = document.createElement('canvas');
@@ -72,43 +80,76 @@ import { detectScriptExecuted } from "astro/virtual-modules/transitions-swap-fun
 			return instanceCanvas;
 		}
 
+		/**
+		 * 
+		 */
+		private appendRandomlyPlacedSignal(startAngle: number) {
+			const minDistance = 0.1; // margin to the border
+			const maxDistance = 0.9; // margin to the border
+			const outOfBoundsRange = 16;
+
+			// do not ask what this is
+			const { x, y } = (() => {
+				switch (startAngle) {
+					case 0: return { x: 0 - outOfBoundsRange, y: Math.floor(map(Math.random(), 0, 1, Math.floor(this.height * minDistance), this.height * maxDistance)) };
+					case 90: return { x: Math.floor(map(Math.random(), 0, 1, Math.floor(this.width * minDistance), this.width * maxDistance)), y: this.height + outOfBoundsRange };
+					case 180: return { x: this.width + outOfBoundsRange, y: Math.floor(map(Math.random(), 0, 1, Math.floor(this.height * minDistance), this.height * maxDistance)) };
+					case 270: return { x: Math.floor(map(Math.random(), 0, 1, Math.floor(this.width * minDistance), this.width * maxDistance)), y: 0 - outOfBoundsRange };
+					default: return { x: 0, y: 0 };
+				};
+			})();
+
+			this.signalHeads.push(new SignalHead(x, y, startAngle, map(Math.random(), 0, 1, 300, 600)));
+		}
+
+		/**
+		 * Draws all saved signal lines to the canvas.
+		 */
+		private drawSignalLines() {
+			this.signalLines.forEach((line) => {
+				this.ctx.beginPath();
+				this.ctx.moveTo(line.x1, line.y1);
+				this.ctx.lineTo(line.x2, line.y2);
+				this.ctx.closePath();
+				this.ctx.stroke();
+			});
+		}
+
 		private draw() {
-			this.signalHeads.forEach((sh) => {
+			this.drawSignalLines();
+			this.signalHeads.forEach((head) => {
+				this.ctx.beginPath();
+				this.ctx.moveTo(head.signalLineStart[0], head.signalLineStart[1]);
+				this.ctx.lineTo(head.centerX, head.centerY);
+				this.ctx.closePath();
+				this.ctx.stroke();
+
 				this.ctx.drawImage(
 					this.signalHeadInstanceCanvas,
-					sh.centerX - SignalHead.RADIUS - SignalHead.SHADOW_PADDING,
-					sh.centerY - SignalHead.RADIUS - SignalHead.SHADOW_PADDING
+					head.centerX - SignalHead.RADIUS - SignalHead.SHADOW_PADDING,
+					head.centerY - SignalHead.RADIUS - SignalHead.SHADOW_PADDING
 				);
+				this.ctx.fill();
 			});
 		}
 
 		private logic() {
-			const stepsize = 1.25;
-			this.signalHeads.forEach((sh) => {
-				if (sh.centerX < sh.destinationX) {
-					sh.centerX += stepsize;
-					sh.currentAxis = 'x';
+			const stepsize = 0.75;
+			this.signalHeads.forEach((signal) => {
+				if (signal.travelLength <= 0) {
+					if (signal.angle !== signal.startAngle) {
+						signal.angle = signal.startAngle;
+					} else {
+						signal.angle += 90 - 180 * Math.floor(Math.random() + 0.5);
+					}
+					signal.travelLength = map(Math.random(), 0, 1, 300, 600);
+					this.signalLines.push(new SignalLine(signal.signalLineStart[0], signal.signalLineStart[1], signal.centerX, signal.centerY));
+					signal.signalLineStart[0] = signal.centerX;
+					signal.signalLineStart[1] = signal.centerY;
 				}
-				if (sh.centerX > sh.destinationX) {
-					sh.centerX -= stepsize;
-					sh.currentAxis = 'x';
-				}
-				if (sh.centerY < sh.destinationY) {
-					sh.centerY += stepsize;
-					sh.currentAxis = 'y';
-				}
-				if (sh.centerY > sh.destinationY) {
-					sh.centerY -= stepsize;
-					sh.currentAxis = 'y';
-				}
-				if (Math.abs(sh.centerX - sh.destinationX) < stepsize && sh.currentAxis === 'x') {
-					sh.centerX = sh.destinationX;
-					sh.destinationY = sh.centerY + Math.pow(-1, Math.floor(Math.random() + 0.5)) * Math.floor(Math.random() * 400);
-				}
-				if (Math.abs(sh.centerY - sh.destinationY) < stepsize && sh.currentAxis === 'y') {
-					sh.centerY = sh.destinationY;
-					sh.destinationX = sh.centerX + Math.pow(-1, Math.floor(Math.random() + 0.5)) * Math.floor(Math.random() * 400);
-				}
+				signal.centerX += stepsize * parseFloat(Math.cos(signal.angle * Math.PI / 180).toFixed(0));
+				signal.centerY -= stepsize * parseFloat(Math.sin(signal.angle * Math.PI / 180).toFixed(0));
+				signal.travelLength--;
 			});
 		}
 
@@ -124,16 +165,33 @@ import { detectScriptExecuted } from "astro/virtual-modules/transitions-swap-fun
 		public static readonly RADIUS: number = 8;
 		public static readonly SHADOW_PADDING: number = 16;
 		public static readonly COLOR: string = "#A20306";
+
 		public centerX: number;
 		public centerY: number;
-		public destinationX: number;
-		public destinationY: number;
-		public currentAxis: string;
+		public travelLength: number;
+		public startAngle: number;
+		public angle: number;
+		public signalLineStart: number[] = [];
 
-		constructor(x: number, y: number, currentAxis: string) {
-			this.centerX = this.destinationX = x;
-			this.centerY = this.destinationY = y;
-			this.currentAxis = currentAxis;
+		constructor(x: number, y: number, angle: number, travelLength: number) {
+			this.centerX = this.signalLineStart[0] = x;
+			this.centerY = this.signalLineStart[1] = y;
+			this.angle = this.startAngle = angle;
+			this.travelLength = travelLength;
+		}
+	}
+
+	class SignalLine {
+		public x1: number;
+		public y1: number;
+		public x2: number;
+		public y2: number;
+
+		constructor(x1: number, y1: number, x2: number, y2: number) {
+			this.x1 = x1;
+			this.y1 = y1;
+			this.x2 = x2;
+			this.y2 = y2;
 		}
 	}
 </script>
