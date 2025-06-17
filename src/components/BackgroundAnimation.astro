@@ -3,11 +3,23 @@
 </div>
 
 <style>
-  .background-animation-container {
-    width: 100vw;
-    height: 100vh;
-    overflow: hidden;
-  }
+	#background-animation-canvas {
+		width: max(100vw, 1440px);
+		border: 1px solid red;
+	}
+
+	.background-animation-container {
+		/* position: absolute;
+		top: 0;
+		left: 50%;
+		transform: translateX(-50%); */
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 100vw;
+		height: 100vh;
+		overflow: hidden;
+	}
 </style>
 
 <script>
@@ -33,8 +45,8 @@
 
 	window.addEventListener('resize', () => {
 		cancelAnimationFrame(animation);
-		canvas.width = window.innerWidth;
-		canvas.height = window.innerHeight;
+		// canvas.width = window.innerWidth;
+		// canvas.height = window.innerHeight;
 		background = new BackgroundAnimation(canvas);
 		background.animate();
 	});
@@ -47,7 +59,6 @@
 		private width: number;
 		private height: number;
 		private signalHeads: SignalHead[] = [];
-		private signalLines: SignalLine[] = [];
 
 		constructor(canvas: HTMLCanvasElement) {
 			this.canvas = canvas;
@@ -57,17 +68,6 @@
 			this.ctx.strokeStyle = '#43484E';
 
 			this.appendRandomlyPlacedSignal(0);
-			this.appendRandomlyPlacedSignal(0);
-			this.appendRandomlyPlacedSignal(0);
-			this.appendRandomlyPlacedSignal(90);
-			this.appendRandomlyPlacedSignal(90);
-			this.appendRandomlyPlacedSignal(90);
-			this.appendRandomlyPlacedSignal(180);
-			this.appendRandomlyPlacedSignal(180);
-			this.appendRandomlyPlacedSignal(180);
-			this.appendRandomlyPlacedSignal(270);
-			this.appendRandomlyPlacedSignal(270);
-			this.appendRandomlyPlacedSignal(270);
 		}
 
 		/**
@@ -94,7 +94,7 @@
 		private appendRandomlyPlacedSignal(startAngle: number) {
 			const minDistance = 0.1; // margin to the border
 			const maxDistance = 0.9; // margin to the border
-			const outOfBoundsRange = 16;
+			const outOfBoundsRange = 0;
 
 			// do not ask what this is
 			const { x, y } = (() => {
@@ -110,32 +110,27 @@
 			this.signalHeads.push(new SignalHead(x, y, startAngle, map(Math.random(), 0, 1, 300, 600)));
 		}
 
-		/**
-		 * Draws all saved signal lines to the canvas.
-		 */
-		private drawSignalLines() {
-			this.signalLines.forEach((line) => {
-				this.ctx.beginPath();
-				this.ctx.moveTo(line.x1, line.y1);
-				this.ctx.lineTo(line.x2, line.y2);
-				this.ctx.closePath();
-				this.ctx.stroke();
-			});
-		}
+		
 
 		private draw() {
-			this.drawSignalLines();
-			this.signalHeads.forEach((head) => {
+			this.signalHeads.forEach((signal) => {
+				signal.signalLines.forEach((line) => {
+					this.ctx.beginPath();
+					this.ctx.moveTo(line.x1, line.y1);
+					this.ctx.lineTo(line.x2, line.y2);
+					this.ctx.closePath();
+					this.ctx.stroke();
+				});
 				this.ctx.beginPath();
-				this.ctx.moveTo(head.signalLineStart[0], head.signalLineStart[1]);
-				this.ctx.lineTo(head.centerX, head.centerY);
+				this.ctx.moveTo(signal.currentLinePos[0], signal.currentLinePos[1]);
+				this.ctx.lineTo(signal.centerX, signal.centerY);
 				this.ctx.closePath();
 				this.ctx.stroke();
 
 				this.ctx.drawImage(
 					this.signalHeadInstanceCanvas,
-					head.centerX - SignalHead.RADIUS - SignalHead.SHADOW_PADDING,
-					head.centerY - SignalHead.RADIUS - SignalHead.SHADOW_PADDING
+					signal.centerX - SignalHead.RADIUS - SignalHead.SHADOW_PADDING,
+					signal.centerY - SignalHead.RADIUS - SignalHead.SHADOW_PADDING
 				);
 				this.ctx.fill();
 			});
@@ -144,20 +139,41 @@
 		private logic() {
 			const stepsize = 0.75;
 			this.signalHeads.forEach((signal) => {
+				if (signal.centerX < 0 || signal.centerY < 0 || signal.centerX > this.width || signal.centerY > this.height) {
+					signal.signalLines.push(new SignalLine(signal.currentLinePos[0], signal.currentLinePos[1], signal.centerX, signal.centerY));
+					if (signal.centerX < 0) {
+						signal.centerX = this.width;
+					}
+					else if (signal.centerY < 0) {
+						signal.centerY = this.height;
+					}
+					else if (signal.centerX > this.width) {
+						signal.centerX = 0;
+					}
+					else if (signal.centerY > this.height) {
+						signal.centerY = 0;
+					} else {}
+					signal.currentLinePos[0] = signal.centerX;
+					signal.currentLinePos[1] = signal.centerY;
+					signal.prioritizedAngle = signal.angle;
+				}
 				if (signal.travelLength <= 0) {
-					if (signal.angle !== signal.startAngle) {
-						signal.angle = signal.startAngle;
+					if (signal.angle !== signal.prioritizedAngle) {
+						signal.angle = signal.prioritizedAngle;
 					} else {
 						signal.angle += 90 - 180 * Math.floor(Math.random() + 0.5);
 					}
 					signal.travelLength = map(Math.random(), 0, 1, 300, 600);
-					this.signalLines.push(new SignalLine(signal.signalLineStart[0], signal.signalLineStart[1], signal.centerX, signal.centerY));
-					signal.signalLineStart[0] = signal.centerX;
-					signal.signalLineStart[1] = signal.centerY;
+					signal.signalLines.push(new SignalLine(signal.currentLinePos[0], signal.currentLinePos[1], signal.centerX, signal.centerY));
+					signal.currentLinePos[0] = signal.centerX;
+					signal.currentLinePos[1] = signal.centerY;
 				}
 				signal.centerX += stepsize * parseFloat(Math.cos(signal.angle * Math.PI / 180).toFixed(0));
 				signal.centerY -= stepsize * parseFloat(Math.sin(signal.angle * Math.PI / 180).toFixed(0));
 				signal.travelLength--;
+				if (signal.puffer > 0) {
+					signal.puffer--;
+				}
 			});
 		}
 
@@ -170,22 +186,32 @@
 	};
 
 	class SignalHead {
-		public static readonly RADIUS: number = 8;
+		public static readonly RADIUS: number = 4;
 		public static readonly SHADOW_PADDING: number = 16;
 		public static readonly COLOR: string = "#A20306";
 
 		public centerX: number;
 		public centerY: number;
 		public travelLength: number;
-		public startAngle: number;
+		public prioritizedAngle: number;
 		public angle: number;
-		public signalLineStart: number[] = [];
+		public currentLinePos: number[] = [];
+		public signalLines: SignalLine[] = [];
+		public puffer: number = 1000;
 
 		constructor(x: number, y: number, angle: number, travelLength: number) {
-			this.centerX = this.signalLineStart[0] = x;
-			this.centerY = this.signalLineStart[1] = y;
-			this.angle = this.startAngle = angle;
+			this.centerX = this.currentLinePos[0] = x;
+			this.centerY = this.currentLinePos[1] = y;
+			this.angle = this.prioritizedAngle = angle;
 			this.travelLength = travelLength;
+		}
+
+		public drawErasingLine(ctx: CanvasRenderingContext2D) {
+			ctx.strokeStyle = '#101010';
+			ctx.beginPath();
+			ctx.moveTo(this.signalLines[0].x1, this.signalLines[0].y1);
+			// ctx.lineTo(this.signalLines[0].x2 - this.signalLines[0].x1, this.signalLines[0].y2 - this.signalLines[0].y1);
+			ctx.closePath();
 		}
 	}
 
