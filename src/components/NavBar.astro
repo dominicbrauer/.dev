@@ -1,0 +1,60 @@
+---
+
+---
+
+<div class="nav-bar-container">
+	<a class="home-link-container" href="/">
+		<span class="home-link-text">Dominic Brauer</span>
+	</a>
+</div>
+
+<style>
+	.home-link-container {
+		position: relative;
+		text-decoration: none;
+		display: flex;
+		width: fit-content;
+		height: fit-content;
+		align-items: center;
+		transition: 200ms all ease;
+		overflow: hidden;
+	}
+
+	.home-link-container::before {
+
+	}
+
+	.home-link-container::after {
+
+	}
+
+	.home-link-container:hover .home-link-container::before {
+
+	}
+
+	.home-link-container:hover .home-link-container::after {
+
+	}
+
+	.home-link-text {
+		font-size: 1.5em;
+	}
+
+	.nav-bar-container {
+		top: 0;
+		left: 50%;
+		transform: translateX(-50%);
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: left;
+		position: fixed;
+		width: 1024px;
+		height: 96px;
+		background-color: var(--background-container);
+		border: 1px solid var(--border);
+		border-top: none;
+		padding: 1rem 2rem;
+		box-shadow: 0 1px 8px 1px black;
+	}
+</style>
