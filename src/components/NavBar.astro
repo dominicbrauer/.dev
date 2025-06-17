@@ -16,28 +16,36 @@
 		width: fit-content;
 		height: fit-content;
 		align-items: center;
-		transition: 200ms all ease;
-		overflow: hidden;
+	}
+
+	.home-link-container::before,
+	.home-link-container::after {
+		content: '';
+		position: absolute;
+		width: 0;
+		height: .25rem;
+		background-color: var(--primary);
+		transition: 250ms all ease-out;
 	}
 
 	.home-link-container::before {
-
+		top: -.5rem;
+		left: 0;
 	}
 
 	.home-link-container::after {
-
+		bottom: -.5rem;
+		right: 0;
 	}
 
-	.home-link-container:hover .home-link-container::before {
-
-	}
-
-	.home-link-container:hover .home-link-container::after {
-
+	.home-link-container:hover.home-link-container::before,
+	.home-link-container:hover.home-link-container::after {
+		width: 100%;
 	}
 
 	.home-link-text {
 		font-size: 1.5em;
+		line-height: 1;
 	}
 
 	.nav-bar-container {
