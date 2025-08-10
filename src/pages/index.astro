@@ -1,10 +1,11 @@
 ---
 import Main from "./layouts/Main.astro";
 
-import { SpotifyAccessToken } from "../lib/SpotifyAccessToken.ts";
+import { SpotifyWebAPI, type SpotifyWebAPICurrentlyPlayingResponse } from "../lib/SpotifyWebAPI";
 
-const myToken = new SpotifyAccessToken();
-// await myToken.refreshAccessToken();
+const api = new SpotifyWebAPI();
+
+// const data: SpotifyWebAPICurrentlyPlayingResponse | undefined = await api.requestCurrentlyPlaying();
 ---
 
 <Main title="Dominic Brauer">

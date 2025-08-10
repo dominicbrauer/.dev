@@ -1,5 +1,5 @@
 /**
- * Defines the structure of a response from `/api/token`
+ * Defines the shape of a response from `/api/token`
  * after refreshing an access token.
  */
 export interface SpotifyAccessTokenResponse {
@@ -19,7 +19,7 @@ export class SpotifyAccessToken {
 	 * It can be undefined if a new AccessToken
 	 * instance has not been granted a token yet.
 	 */
-	public value: string | undefined = undefined;
+	private value: string | undefined = undefined;
 
 	/**
 	 * Gets the current value of the AccessToken.
@@ -37,7 +37,7 @@ export class SpotifyAccessToken {
 	 * Verifies if the access token is valid.
 	 * @returns false if the token is expired.
 	 */
-	public async isValid(): Promise<boolean> {
+	private async isValid(): Promise<boolean> {
 		try {
 			const response = await fetch("https://api.spotify.com/v1/me", {
 				method: 'GET',
@@ -53,9 +53,9 @@ export class SpotifyAccessToken {
 	}
 
 	/**
-	 * Refreshes the value of the token or defines a new value if none was set yet.
+	 * Refreshes the value of the token or defines a new value if none is set yet.
 	 */
-	public async refreshAccessToken() {
+	private async refreshAccessToken() {
 		try {
 			const params = new URLSearchParams([
 				['grant_type', 'refresh_token'],
@@ -72,7 +72,7 @@ export class SpotifyAccessToken {
 			});
 
 			if (!response.ok) {
-
+				return;
 			}
 
 			const data: SpotifyAccessTokenResponse = await response.json();
