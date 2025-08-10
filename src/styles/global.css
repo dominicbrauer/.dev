@@ -14,16 +14,21 @@
 	--text-primary: #FFFFFF;
 	--text-secondary: #B0B4BA;
 	--border: #43484E;
+
+	--nav-bar-height: 96px;
+	--song-display-width: 288px;
 }
 
 * {
 	font-family: 'InclusiveSans', sans-serif;
 	color: var(--text-primary);
 	margin: 0;
+	padding: 0;
 	box-sizing: border-box;
 }
 
 html, body {
+	position: relative;
 	width: 100%;
 	height: 100%;
 	background-color: var(--background);
@@ -32,3 +37,7 @@ html, body {
 h1, h2, h3, h4, h5, h6 {
 	font-weight: 900;
 }
+
+.cflex, .rflex { display: flex; }
+.cflex { flex-direction: column; }
+.rflex { flex-direction: row; }

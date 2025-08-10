@@ -2,22 +2,37 @@
 
 ---
 
-<div class="nav-bar-container">
-	<a class="home-link-container" href="/">
+<div class="nav-bar-container rflex">
+	<a class="home-link-container rflex" href="/">
 		<span class="home-link-text">Dominic Brauer</span>
 	</a>
 </div>
 
 <style>
+	.nav-bar-container {
+		top: 0;
+		left: 50%;
+		transform: translateX(-50%);
+		align-items: center;
+		justify-content: left;
+		position: fixed;
+		width: 1024px;
+		height: var(--nav-bar-height);
+		background-color: var(--background-container);
+		border: 1px solid var(--border);
+		border-top: none;
+		padding: 1rem 2rem;
+		box-shadow: 0 1px 8px 1px black;
+	}
+
 	.home-link-container {
 		position: relative;
 		text-decoration: none;
-		display: flex;
 		width: fit-content;
 		height: fit-content;
 		align-items: center;
 	}
-
+	
 	.home-link-container::before,
 	.home-link-container::after {
 		content: '';
@@ -27,12 +42,12 @@
 		background-color: var(--primary);
 		transition: 250ms all ease-out;
 	}
-
+	
 	.home-link-container::before {
 		top: -.5rem;
 		left: 0;
 	}
-
+	
 	.home-link-container::after {
 		bottom: -.5rem;
 		right: 0;
@@ -46,23 +61,5 @@
 	.home-link-text {
 		font-size: 1.5em;
 		line-height: 1;
-	}
-
-	.nav-bar-container {
-		top: 0;
-		left: 50%;
-		transform: translateX(-50%);
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		justify-content: left;
-		position: fixed;
-		width: 1024px;
-		height: 96px;
-		background-color: var(--background-container);
-		border: 1px solid var(--border);
-		border-top: none;
-		padding: 1rem 2rem;
-		box-shadow: 0 1px 8px 1px black;
 	}
 </style>

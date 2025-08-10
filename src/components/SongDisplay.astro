@@ -1,0 +1,142 @@
+---
+import { SpotifyWebAPI, type SpotifyWebAPICurrentlyPlayingResponse } from "../lib/SpotifyWebAPI";
+import { Image } from "astro:assets";
+import DiscIcon from "../assets/icons/disc.svg";
+import MicIcon from "../assets/icons/mic.svg";
+
+const api = new SpotifyWebAPI();
+const data: SpotifyWebAPICurrentlyPlayingResponse | undefined = await api.requestCurrentlyPlaying();
+---
+
+{data &&
+<div class="song-display-container cflex">
+	<div class="image-wrapper">
+		<Image
+			class="song-cover"
+			src={data?.item.album.images[0].url}
+			width={data?.item.album.images[0].width}
+			height={data?.item.album.images[0].height}
+			alt="The album cover of the currently playing song."
+		/>
+	</div>
+	<div class="song-information-wrapper cflex">
+		<a class="song-title" href={data.item.external_urls.spotify} target="_blank">
+			{data.item.name}
+		</a>
+		<div class="artists-wrapper rflex">
+			<MicIcon />
+			<span>
+				{data.item.artists.map((artist, index) => (
+					<>
+						<a class="artist" href={artist.external_urls.spotify} target="_blank">
+							{artist.name}
+						</a>
+						{index < data.item.artists.length - 1 && " • "}
+					</>
+				))}
+			</span>
+		</div>
+		<div class="album-wrapper rflex">
+			<DiscIcon class="disc-svg" />
+			<a class="album-title" href={data.item.album.external_urls.spotify} target="_blank">
+				{data.item.album.name}
+			</a>
+		</div>
+	</div>
+</div>
+}
+
+<style>
+	.song-display-container {
+		position: relative;
+		background-color: var(--background-container);
+		border: 1px solid var(--border);
+		padding: 20px;
+		width: var(--song-display-width);
+		z-index: 1;
+		overflow: hidden;
+		gap: 4px;
+	}
+
+	.song-cover {
+		aspect-ratio: 1 / 1;
+		width: 100%;
+		height: auto;
+	}
+
+	.song-display-container::before {
+		content: '';
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		background-image: radial-gradient(circle at center, var(--primary), var(--background-container) 50%);
+		filter: blur(1rem);
+		opacity: .5;
+		top: -50%;
+		left: -50%;
+		z-index: -1;
+		animation: gradientMovement 8s linear infinite alternate-reverse;
+	}
+
+	@keyframes gradientMovement {
+		0% {
+			top: -50%;
+			left: -50%;
+		}
+		25% {
+			top: -50%;
+			left: 50%;
+		}
+		50% {
+			top: 50%;
+			left: 50%;
+		}
+		75% {
+			top: 50%;
+			left: -50%;
+		}
+		100% {
+			top: -50%;
+			left: -50%;
+		}
+	}
+
+	.song-information-wrapper {
+		gap: 6px;
+	}
+
+	.song-title {
+		font-size: 1.5em;
+		font-weight: 500;
+	}
+
+	.artists-wrapper, .album-wrapper {
+		gap: 6px;
+	}
+
+	.song-information-wrapper svg {
+		position: relative;
+		aspect-ratio: 1 / 1;
+		height: 1.25em;
+		width: auto;
+		stroke: var(--text-secondary);
+	}
+
+	.album-title {
+		color: var(--text-secondary);
+	}
+
+	a, span {
+		text-decoration: none;
+		width: fit-content;
+	}
+
+	a:hover {
+		text-decoration: underline;
+		color: var(--text-primary);
+	}
+</style>
+
+<script>
+	const songInformationLinks = document.querySelectorAll<HTMLAnchorElement>('a');
+</script>

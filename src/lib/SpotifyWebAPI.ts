@@ -25,6 +25,9 @@ export interface SpotifyWebAPICurrentlyPlayingResponse {
 			};
 			name: string;
 		}[];
+		external_urls: {
+			spotify: string;
+		}
 		duration_ms: number;
 		name: string;
 	};

@@ -1,15 +1,14 @@
 ---
-import Main from "./layouts/Main.astro";
-
 import { SpotifyWebAPI, type SpotifyWebAPICurrentlyPlayingResponse } from "../lib/SpotifyWebAPI";
+import Main from "../layouts/Main.astro";
+import SongDisplay from "../components/SongDisplay.astro";
 
-const api = new SpotifyWebAPI();
-
+// const api = new SpotifyWebAPI();
 // const data: SpotifyWebAPICurrentlyPlayingResponse | undefined = await api.requestCurrentlyPlaying();
 ---
 
 <Main title="Dominic Brauer">
-
+	<SongDisplay />
 </Main>
 
 <style>
