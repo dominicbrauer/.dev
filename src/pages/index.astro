@@ -1,5 +1,10 @@
 ---
 import Main from "./layouts/Main.astro";
+
+import { SpotifyAccessToken } from "../lib/SpotifyAccessToken.ts";
+
+const myToken = new SpotifyAccessToken();
+// await myToken.refreshAccessToken();
 ---
 
 <Main title="Dominic Brauer">
@@ -9,3 +14,7 @@ import Main from "./layouts/Main.astro";
 <style>
 
 </style>
+
+<script>
+
+</script>
