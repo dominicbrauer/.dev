@@ -2,6 +2,7 @@
 import { Image } from "astro:assets";
 import DiscIcon from "@/assets/icons/disc.svg";
 import MicIcon from "@/assets/icons/mic.svg";
+import PauseIcon from "@/assets/icons/pause.svg";
 import { db, SpotifyWebAPICurrentlyPlaying, eq } from "astro:db";
 import { SpotifyWebAPI, type SpotifyWebAPICurrentlyPlayingResponse } from "@/lib/spotify/SpotifyWebAPI";
 
@@ -25,20 +26,24 @@ if (currentUTC > dbEntry.fetched_at + 30000) {
 }
 
 const data: SpotifyWebAPICurrentlyPlayingResponse = await JSON.parse(dbEntry.data as string);
+console.log(dbEntry.live);
 ---
 
 { data?.item &&
-<div class="song-display cflex">
+<div class="song-display cflex" data-paused={!data.is_playing}>
 	<div class="cover-wrapper">
+		<PauseIcon class="pause-icon" />
 		<Image
 			class="song-cover"
 			src={data?.item.album.images[0].url}
 			width={data?.item.album.images[0].width}
 			height={data?.item.album.images[0].height}
 			alt="The album cover of the currently playing song."
+			crossorigin="anonymous"
 		/>
+		<canvas />
 	</div>
-	<div class="song-information-wrapper cflex">
+	<div class="song-information-wrapper">
 		<a class="song-title" href={data.item.external_urls.spotify} target="_blank">
 			{data.item.name}
 		</a>
@@ -81,15 +86,23 @@ const data: SpotifyWebAPICurrentlyPlayingResponse = await JSON.parse(dbEntry.dat
 		gap: var(--size-2xs) var(--size-s);
 	}
 
+	.cover-wrapper {
+		position: relative;
+		margin-bottom: var(--size-s);
+	}
+
+	.cover-wrapper canvas {
+		display: none;
+	}
+
 	.song-cover {
 		aspect-ratio: 1 / 1;
 		width: 100%;
 		height: auto;
 		grid-row-start: 1;
-		margin-bottom: var(--size-s);
 	}
 
-	/* .song-display::before {
+	.song-display::before {
 		content: '';
 		position: absolute;
 		width: 100%;
@@ -124,7 +137,7 @@ const data: SpotifyWebAPICurrentlyPlayingResponse = await JSON.parse(dbEntry.dat
 			top: -50%;
 			left: -50%;
 		}
-	} */
+	}
 
 	.song-title {
 		font-size: 1.5em;
@@ -151,12 +164,79 @@ const data: SpotifyWebAPICurrentlyPlayingResponse = await JSON.parse(dbEntry.dat
 		width: auto;
 	}
 
-	a, span {
+	a {
 		text-decoration: none;
-		width: fit-content;
 	}
 
 	a:hover {
 		text-decoration: underline;
 	}
+
+	.pause-icon {
+		display: none;
+		position: absolute;
+		aspect-ratio: 1 / 1;
+		width: 96px;
+		height: auto;
+		stroke: transparent;
+		inset: 0px;
+		margin: auto;
+		z-index: 100;
+	}
+
+	.song-display[data-paused="true"] .song-cover {
+		filter: grayscale();
+	}
+
+	.song-display[data-paused="true"] .song-title {
+		color: var(--text-muted);
+	}
+
+	.song-display[data-paused="true"] .pause-icon {
+		display: initial;
+	}
 </style>
+
+<script>
+	/**
+	 * Sets the color for the SongDisplay pause icon
+	 * based on the cover colors.
+	 */
+	function setPauseIconColor() {
+		const songCover = document.querySelector<HTMLImageElement>('.song-cover')!;
+		const pauseIcon = document.querySelector<SVGElement>('.pause-icon')!;
+		const canvas = document.querySelector<HTMLCanvasElement>('.cover-wrapper canvas')!;
+		const ctx = canvas.getContext("2d")!;
+	
+		canvas.width = songCover.width;
+		canvas.height = songCover.height;
+	
+		ctx.drawImage(songCover, 0, 0);
+	
+		const hue: {
+			r: number;
+			g: number;
+			b: number;
+		}[] = []
+	
+		const start = (canvas.width - 96) / 2;
+		const end = start + 96;
+		const stepSize = 16;
+	
+		for (let i = start; i < end; i+=stepSize) {
+			for (let j = start; j < end; j+=stepSize) {
+				const [r, g, b] = ctx.getImageData(i, j, 1, 1).data;
+				hue.push({r, g, b});
+			}
+		}
+	
+		const R = hue.reduce((sum, val) => sum + val.r, 0) / hue.length;
+		const G = hue.reduce((sum, val) => sum + val.g, 0) / hue.length;
+		const B = hue.reduce((sum, val) => sum + val.b, 0) / hue.length;
+	
+		const grayscale = 0.299 * R + 0.587 * G + 0.114 * B;
+		pauseIcon.style.stroke = `hsl(240, 1%, calc(100% - ${Math.round(grayscale / 255 * 100)}%))`;
+	}
+
+	setPauseIconColor();
+</script>
