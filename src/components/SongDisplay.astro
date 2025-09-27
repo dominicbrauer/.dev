@@ -28,8 +28,8 @@ const data: SpotifyWebAPICurrentlyPlayingResponse = await JSON.parse(dbEntry.dat
 ---
 
 { data?.item &&
-<div class="song-display-container cflex">
-	<div class="image-wrapper">
+<div class="song-display cflex">
+	<div class="cover-wrapper">
 		<Image
 			class="song-cover"
 			src={data?.item.album.images[0].url}
@@ -42,53 +42,59 @@ const data: SpotifyWebAPICurrentlyPlayingResponse = await JSON.parse(dbEntry.dat
 		<a class="song-title" href={data.item.external_urls.spotify} target="_blank">
 			{data.item.name}
 		</a>
-		<div class="artists-wrapper rflex">
-			<MicIcon />
+		<MicIcon class="mic-svg" />
+		<div class="artists-wrapper">
 			<span>
 				{data.item.artists.map((artist, index) => (
 					<>
 						<a class="artist" href={artist.external_urls.spotify} target="_blank">
 							{artist.name}
 						</a>
-						{index < data.item.artists.length - 1 && " • "}
+						{index < data.item.artists.length - 1 && <span> • </span>}
 					</>
 				))}
 			</span>
 		</div>
-		<div class="album-wrapper rflex">
-			<DiscIcon class="disc-svg" />
-			<a class="album-title" href={data.item.album.external_urls.spotify} target="_blank">
+		<DiscIcon class="disc-svg" />
+		<span class="album-title-wrapper">
+			<a href={data.item.album.external_urls.spotify} target="_blank">
 				{data.item.album.name}
 			</a>
-		</div>
+		</span>
 	</div>
 </div>
 }
 
 <style>
-	.song-display-container {
+	.song-display {
 		position: relative;
-		background-color: var(--background-container);
 		border: 1px solid var(--border);
-		padding: 20px;
-		width: var(--song-display-width);
-		z-index: 1;
+		padding: var(--size-l);
+		width: var(--songdisplay-width);
 		overflow: hidden;
-		gap: 4px;
+	}
+
+	.song-information-wrapper {
+		display: grid;
+		width: 100%;
+		grid-template-columns: 24px 1fr;
+		gap: var(--size-2xs) var(--size-s);
 	}
 
 	.song-cover {
 		aspect-ratio: 1 / 1;
 		width: 100%;
 		height: auto;
+		grid-row-start: 1;
+		margin-bottom: var(--size-s);
 	}
 
-	.song-display-container::before {
+	/* .song-display::before {
 		content: '';
 		position: absolute;
 		width: 100%;
 		height: 100%;
-		background-image: radial-gradient(circle at center, var(--primary), var(--background-container) 50%);
+		background-image: radial-gradient(circle at center, var(--primary), var(--bg) 50%);
 		filter: blur(1rem);
 		opacity: .5;
 		top: -50%;
@@ -118,31 +124,31 @@ const data: SpotifyWebAPICurrentlyPlayingResponse = await JSON.parse(dbEntry.dat
 			top: -50%;
 			left: -50%;
 		}
-	}
-
-	.song-information-wrapper {
-		gap: 6px;
-	}
+	} */
 
 	.song-title {
 		font-size: 1.5em;
 		font-weight: 500;
+		color: var(--text);
+		grid-column: span 2;
+		margin-bottom: var(--size-3xs);
 	}
 
-	.artists-wrapper, .album-wrapper {
-		gap: 6px;
+	.mic-svg, .disc-svg {
+		grid-column-start: 1;
 	}
 
-	.artists-wrapper span, .artists-wrapper a, .album-title {
-		color: var(--text-secondary);
+	.artists-wrapper, .album-title-wrapper {
+		display: flex;
+		grid-column-start: 2;
+		align-items: center;
 	}
 
 	.song-information-wrapper svg {
 		position: relative;
 		aspect-ratio: 1 / 1;
-		height: 1.25em;
+		height: 24px;
 		width: auto;
-		stroke: var(--text-secondary);
 	}
 
 	a, span {
@@ -152,6 +158,5 @@ const data: SpotifyWebAPICurrentlyPlayingResponse = await JSON.parse(dbEntry.dat
 
 	a:hover {
 		text-decoration: underline;
-		color: var(--text-primary);
 	}
 </style>

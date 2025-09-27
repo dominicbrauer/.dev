@@ -2,27 +2,28 @@
 
 ---
 
-<div class="nav-bar-container rflex">
+<div class="navbar rflex">
 	<a class="home-link-container rflex" href="/">
 		<span class="home-link-text">Dominic Brauer</span>
 	</a>
 </div>
 
 <style>
-	.nav-bar-container {
+	.navbar {
 		top: 0;
 		left: 50%;
 		transform: translateX(-50%);
 		align-items: center;
 		justify-content: left;
 		position: fixed;
-		width: 1024px;
-		height: var(--nav-bar-height);
-		background-color: var(--background-container);
-		border: 1px solid var(--border);
-		border-top: none;
+		max-width: 1200px;
+		width: 100%;
+		height: var(--navbar-height);
+		background-color: var(--bg);
 		padding: 1rem 2rem;
 		box-shadow: 0 1px 8px 1px black;
+		z-index: 1000;
+		border-bottom: 1px solid var(--border);
 	}
 
 	.home-link-container {
@@ -59,7 +60,15 @@
 	}
 
 	.home-link-text {
+		color: var(--text);
 		font-size: 1.5em;
 		line-height: 1;
+	}
+
+	@media (min-width: 1200px) {
+		.navbar {
+			border-left: 1px solid var(--border);
+			border-right: 1px solid var(--border);
+		}
 	}
 </style>

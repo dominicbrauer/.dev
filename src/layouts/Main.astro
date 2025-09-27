@@ -14,15 +14,22 @@ const { title } = Astro.props;
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
 	</head>
-	<body class="cflex">
+	<body>
 		<NavBar />
-		<slot />
+		<main class="cflex">
+			<slot />
+		</main>
 	</body>
 </html>
 
 <style>
-	body {
+	main {
+		padding-top: calc(var(--navbar-height) + 2em);
+		max-width: 1200px;
+		width: 100%;
+		position: relative;
+		left: 50%;
+		transform: translateX(-50%);
 		align-items: center;
-		padding-top: calc(var(--nav-bar-height) + 2rem);
 	}
 </style>
