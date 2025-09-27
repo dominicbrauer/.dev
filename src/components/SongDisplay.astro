@@ -26,7 +26,6 @@ if (currentUTC > dbEntry.fetched_at + 30000) {
 }
 
 const data: SpotifyWebAPICurrentlyPlayingResponse = await JSON.parse(dbEntry.data as string);
-console.log(dbEntry.live);
 ---
 
 { data?.item &&
