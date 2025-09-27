@@ -10,7 +10,8 @@ export interface SpotifyAccessTokenResponse {
 }
 
 /**
- * 
+ * Represents a Spotify Web API
+ * access token.
  */
 export class SpotifyAccessToken {
 
@@ -19,43 +20,16 @@ export class SpotifyAccessToken {
 	 * It can be undefined if a new AccessToken
 	 * instance has not been granted a token yet.
 	 */
-	private value: string | undefined = undefined;
+	public value: string;
 
-	/**
-	 * Gets the current value of the AccessToken.
-	 * If the token is expired, it will first be refreshed.
-	 * @returns valid acccess token.
-	 */
-	public async getValue() {
-		if (!await this.isValid()) {
-			await this.refreshAccessToken();
-		}
-		return this.value;
-	}
-
-	/**
-	 * Verifies if the access token is valid.
-	 * @returns false if the token is expired.
-	 */
-	private async isValid(): Promise<boolean> {
-		try {
-			const response = await fetch("https://api.spotify.com/v1/me", {
-				method: 'GET',
-				headers: {
-					'Authorization': 'Bearer ' + this.value,
-				},
-			});
-
-			return response.ok;
-		} catch {
-			throw new WebTransportError("Could not reach the Spotify Web API endpoint.");
-		}
+	constructor(tokenValue: string) {
+		this.value = tokenValue;
 	}
 
 	/**
 	 * Refreshes the value of the token or defines a new value if none is set yet.
 	 */
-	private async refreshAccessToken() {
+	public async refreshAccessToken() {
 		try {
 			const params = new URLSearchParams([
 				['grant_type', 'refresh_token'],

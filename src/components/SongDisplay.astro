@@ -1,14 +1,33 @@
 ---
-import { SpotifyWebAPI, type SpotifyWebAPICurrentlyPlayingResponse } from "../lib/SpotifyWebAPI";
 import { Image } from "astro:assets";
-import DiscIcon from "../assets/icons/disc.svg";
-import MicIcon from "../assets/icons/mic.svg";
+import DiscIcon from "@/assets/icons/disc.svg";
+import MicIcon from "@/assets/icons/mic.svg";
+import { db, SpotifyWebAPICurrentlyPlaying, eq } from "astro:db";
+import { SpotifyWebAPI, type SpotifyWebAPICurrentlyPlayingResponse } from "@/lib/spotify/SpotifyWebAPI";
 
-const api = new SpotifyWebAPI();
-const data: SpotifyWebAPICurrentlyPlayingResponse | undefined = await api.requestCurrentlyPlaying();
+const dbEntry = (await db.select().from(SpotifyWebAPICurrentlyPlaying))[0];
+const currentUTC = Date.now();
+
+if (currentUTC > dbEntry.fetched_at + 30000) {
+	const api = new SpotifyWebAPI(dbEntry.access_token);
+	const updatedData = await api.requestCurrentlyPlaying();
+
+	if (updatedData) {
+		dbEntry.data = JSON.stringify(updatedData);
+		dbEntry.fetched_at = currentUTC;
+		dbEntry.access_token = api.accessToken.value;
+		dbEntry.live = true;
+
+		await db.update(SpotifyWebAPICurrentlyPlaying).set(dbEntry).where(eq(SpotifyWebAPICurrentlyPlaying.data_id, 0));
+	} else {
+		dbEntry.live = false;
+	}
+}
+
+const data: SpotifyWebAPICurrentlyPlayingResponse = await JSON.parse(dbEntry.data as string);
 ---
 
-{data &&
+{ data?.item &&
 <div class="song-display-container cflex">
 	<div class="image-wrapper">
 		<Image
@@ -136,7 +155,3 @@ const data: SpotifyWebAPICurrentlyPlayingResponse | undefined = await api.reques
 		color: var(--text-primary);
 	}
 </style>
-
-<script>
-	const songInformationLinks = document.querySelectorAll<HTMLAnchorElement>('a');
-</script>
