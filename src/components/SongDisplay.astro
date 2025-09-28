@@ -19,14 +19,14 @@ if (currentUTC > dbEntry.fetched_at + 30000) {
 		dbEntry.fetched_at = currentUTC;
 		dbEntry.access_token = api.accessToken.value;
 	} else {
-		const fallbackData = dbEntry.data as SpotifyWebAPICurrentlyPlayingResponse;
+		const fallbackData: SpotifyWebAPICurrentlyPlayingResponse = JSON.parse(dbEntry.data as string);
 		fallbackData.is_playing = false;
 		dbEntry.data = JSON.stringify(fallbackData);
 	}
 	await db.update(SpotifyWebAPICurrentlyPlaying).set(dbEntry).where(eq(SpotifyWebAPICurrentlyPlaying.data_id, 0));
 }
 
-const data: SpotifyWebAPICurrentlyPlayingResponse = await JSON.parse(dbEntry.data as string);
+const data: SpotifyWebAPICurrentlyPlayingResponse = JSON.parse(dbEntry.data as string);
 ---
 
 { data?.item &&
