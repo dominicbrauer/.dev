@@ -93,7 +93,7 @@ const progress = new Date(data.progress_ms + (now - fetchedAt));
 		progressSpan!.textContent = `${msProgress.getMinutes()}:${formatSeconds(msProgress.getSeconds())}`;
 
 		// stop counting if the song ends
-		if (msProgress >= msDuration) {
+		if (msProgress.getTime() - 1000 >= msDuration.getTime()) {
 			window.clearInterval(progressCounter);
 		}
 	}
