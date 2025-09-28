@@ -145,9 +145,12 @@ const data: SpotifyWebAPICurrentlyPlayingResponse = await JSON.parse(dbEntry.dat
 	.song-title {
 		font-size: 1.5em;
 		font-weight: 500;
-		color: var(--text);
 		grid-column: span 2;
 		margin-bottom: var(--size-3xs);
+	}
+
+	.song-title a {
+		color: var(--text);
 	}
 
 	.mic-svg, .disc-svg {
