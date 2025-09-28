@@ -1,0 +1,103 @@
+---
+import BlockIcon from "@/assets/icons/mogus.svg";
+import type { SpotifyWebAPICurrentlyPlayingResponse } from "@/lib/spotify/SpotifyWebAPI";
+import { formatSeconds } from "@/scripts/songdisplay";
+
+type Props = {
+	data: SpotifyWebAPICurrentlyPlayingResponse;
+	fetchedAt: number;
+}
+
+const { data, fetchedAt } = Astro.props;
+
+const now = Date.now();
+const duration = new Date(data.item.duration_ms);
+const progress = new Date(data.progress_ms + (now - fetchedAt));
+---
+
+<div class="timeline">
+	<div class="bar">
+		{Array.from({length: 32}).map(() => (
+			<BlockIcon class="block" />
+		))}
+	</div>
+	<div class="timecodes rflex">
+		<span data-progress={progress.getTime()} class="progress">
+			{`${progress.getMinutes()}:${formatSeconds(progress.getSeconds())}`}
+		</span>
+		<span data-duration={duration.getTime()} class="duration">
+			{`${duration.getMinutes()}:${formatSeconds(duration.getSeconds())}`}
+		</span>
+	</div>
+</div>
+
+<style>
+	.timeline {
+
+	}
+
+	.bar {
+		position: relative;
+		width: 100%;
+		height: var(--size-m);
+		border: 1px solid var(--border-muted);
+	}
+
+	.block {
+		position: absolute;
+		height: calc(var(--size-m) - 6px);
+		width: auto;
+		stroke: transparent;
+		fill: var(--primary);
+		top: 2px;
+		opacity: 0;
+		transition: opacity 500ms ease;
+	}
+
+	.timecodes {
+		justify-content: space-between;
+		font-size: .75em;
+		padding: var(--size-3xs);
+	}
+</style>
+
+<script>
+	import { formatSeconds } from "@/scripts/songdisplay";
+
+	const blockElements = document.querySelectorAll<SVGElement>('.block');
+	const progressSpan = document.querySelector<HTMLSpanElement>('.progress');
+	const durationSpan = document.querySelector<HTMLSpanElement>('.duration');
+
+	let msProgress = new Date(Number(progressSpan?.dataset.progress));
+	const msDuration = new Date(Number(durationSpan?.dataset.duration));
+
+	blockElements.forEach((block, index) => {
+		block.style.left = `${index * 6 + 4}px`;
+		block.style.filter = `brightness(${0.5 + index * 0.025})`;
+	});
+
+	/**
+	 * Updates the timeline block elements
+	 * and progress counter every second.
+	 */
+	function updateTimeline() {
+		const expectedBlockCount = Math.round(msProgress.getTime() / msDuration.getTime() * blockElements.length);
+
+		blockElements.forEach((block, index) => {
+			if (index <= expectedBlockCount) {
+				block.style.opacity = '1';
+			}
+		});
+
+		msProgress.setTime(msProgress.getTime() + 1000);
+		progressSpan!.textContent = `${msProgress.getMinutes()}:${formatSeconds(msProgress.getSeconds())}`;
+
+		// stop counting if the song ends
+		if (msProgress >= msDuration) {
+			window.clearInterval(progressCounter);
+		}
+	}
+
+	updateTimeline();
+	const progressCounter = window.setInterval(() => updateTimeline(), 1000);
+</script>

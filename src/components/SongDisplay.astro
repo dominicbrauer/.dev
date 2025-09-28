@@ -1,10 +1,11 @@
 ---
 import { Image } from "astro:assets";
-import DiscIcon from "@/assets/icons/disc.svg";
-import MicIcon from "@/assets/icons/mic.svg";
-import PauseIcon from "@/assets/icons/pause.svg";
+import DiscIcon from "@lucide/astro/icons/disc";
+import MicIcon from "@lucide/astro/icons/mic-vocal";
+import PauseIcon from "@lucide/astro/icons/pause";
 import { db, SpotifyWebAPICurrentlyPlaying, eq } from "astro:db";
 import { SpotifyWebAPI, type SpotifyWebAPICurrentlyPlayingResponse } from "@/lib/spotify/SpotifyWebAPI";
+import Timeline from "@/components/Timeline.astro";
 
 const dbEntry = (await db.select().from(SpotifyWebAPICurrentlyPlaying))[0];
 const currentUTC = Date.now();
@@ -31,7 +32,7 @@ const data: SpotifyWebAPICurrentlyPlayingResponse = await JSON.parse(dbEntry.dat
 { data?.item &&
 <div class="song-display cflex" data-paused={!data.is_playing}>
 	<div class="cover-wrapper">
-		<PauseIcon class="pause-icon" />
+		<PauseIcon stroke-width=1 class="pause-icon" />
 		<Image
 			class="song-cover"
 			src={data?.item.album.images[0].url}
@@ -43,9 +44,11 @@ const data: SpotifyWebAPICurrentlyPlayingResponse = await JSON.parse(dbEntry.dat
 		<canvas />
 	</div>
 	<div class="song-information-wrapper">
-		<a class="song-title" href={data.item.external_urls.spotify} target="_blank">
-			{data.item.name}
-		</a>
+		<span class="song-title">
+			<a href={data.item.external_urls.spotify} target="_blank">
+				{data.item.name}
+			</a>
+		</span>
 		<MicIcon class="mic-svg" />
 		<div class="artists-wrapper">
 			<span>
@@ -66,6 +69,7 @@ const data: SpotifyWebAPICurrentlyPlayingResponse = await JSON.parse(dbEntry.dat
 			</a>
 		</span>
 	</div>
+	{data.is_playing && <Timeline data={data} fetchedAt={dbEntry.fetched_at} />}
 </div>
 }
 
@@ -76,6 +80,7 @@ const data: SpotifyWebAPICurrentlyPlayingResponse = await JSON.parse(dbEntry.dat
 		padding: var(--size-l);
 		width: var(--songdisplay-width);
 		overflow: hidden;
+		gap: var(--size-s);
 	}
 
 	.song-information-wrapper {
@@ -87,7 +92,6 @@ const data: SpotifyWebAPICurrentlyPlayingResponse = await JSON.parse(dbEntry.dat
 
 	.cover-wrapper {
 		position: relative;
-		margin-bottom: var(--size-s);
 	}
 
 	.cover-wrapper canvas {
@@ -101,7 +105,7 @@ const data: SpotifyWebAPICurrentlyPlayingResponse = await JSON.parse(dbEntry.dat
 		grid-row-start: 1;
 	}
 
-	.song-display::before {
+	/* .song-display::before {
 		content: '';
 		position: absolute;
 		width: 100%;
@@ -136,7 +140,7 @@ const data: SpotifyWebAPICurrentlyPlayingResponse = await JSON.parse(dbEntry.dat
 			top: -50%;
 			left: -50%;
 		}
-	}
+	} */
 
 	.song-title {
 		font-size: 1.5em;
@@ -177,10 +181,10 @@ const data: SpotifyWebAPICurrentlyPlayingResponse = await JSON.parse(dbEntry.dat
 		aspect-ratio: 1 / 1;
 		width: 96px;
 		height: auto;
-		stroke: transparent;
 		inset: 0px;
 		margin: auto;
 		z-index: 100;
+		stroke: var(--text);
 	}
 
 	.song-display[data-paused="true"] .song-cover {
@@ -234,7 +238,7 @@ const data: SpotifyWebAPICurrentlyPlayingResponse = await JSON.parse(dbEntry.dat
 		const B = hue.reduce((sum, val) => sum + val.b, 0) / hue.length;
 	
 		const grayscale = 0.299 * R + 0.587 * G + 0.114 * B;
-		pauseIcon.style.stroke = `hsl(240, 1%, calc(100% - ${Math.round(grayscale / 255 * 100)}%))`;
+		pauseIcon.style.stroke = `hsl(240, 1%, calc(150% - ${Math.round(grayscale / 255 * 100)}%))`;
 	}
 
 	setPauseIconColor();
