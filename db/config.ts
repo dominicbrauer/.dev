@@ -5,8 +5,7 @@ const SpotifyWebAPICurrentlyPlaying = defineTable({
 		data_id: column.number({ primaryKey: true }),
 		data: column.json(),
 		fetched_at: column.number(),
-		access_token: column.text(),
-		live: column.boolean()
+		access_token: column.text()
 	}
 });
 
