@@ -16,13 +16,15 @@ if (currentUTC > dbEntry.fetched_at + 30000) {
 
 	if (updatedData) {
 		dbEntry.data = JSON.stringify(updatedData);
-		dbEntry.fetched_at = currentUTC;
 		dbEntry.access_token = api.accessToken.value;
 	} else {
 		const fallbackData: SpotifyWebAPICurrentlyPlayingResponse = JSON.parse(dbEntry.data as string);
 		fallbackData.is_playing = false;
 		dbEntry.data = JSON.stringify(fallbackData);
 	}
+
+	dbEntry.fetched_at = currentUTC;
+
 	await db.update(SpotifyWebAPICurrentlyPlaying).set(dbEntry).where(eq(SpotifyWebAPICurrentlyPlaying.data_id, 0));
 }
 

@@ -1,8 +1,14 @@
 ---
 import Main from "@/layouts/Main.astro";
+import WebringBadge from "astro-webrings/badge";
 import SongDisplay from "@/components/SongDisplay.astro";
 ---
 
 <Main title="Dominic Brauer">
-	<SongDisplay />
+	<!-- <SongDisplay /> -->
+	<p>Song-Display temporarily disabled.</p>
+	<div class="webrings">
+		<WebringBadge site="dominicbrauer.dev" ring="built-with-astro" />
+		<WebringBadge site="dominicbrauer.dev" ring="friends-of-houston" animated />
+	</div>
 </Main>
