@@ -1,13 +1,13 @@
-import { db, SpotifyWebAPICurrentlyPlaying } from 'astro:db';
+import { db, SpotifyWebAPICurrentSong } from 'astro:db';
 
 export default async function() {
-	await db.insert(SpotifyWebAPICurrentlyPlaying).values([
-    { 
-		data_id: 0,
-		data: "{}",
-		fetched_at: 1,
-		access_token: "abc",
-		live: false
-	}
-  ]);
+	await db.insert(SpotifyWebAPICurrentSong).values([{
+		id: 0,
+		song: "{}",
+		fetched_at: 123,
+		access_token: "abc123",
+		token_fetched_at: 123,
+		is_playing: false,
+		progress_ms: null
+	}]);
 }

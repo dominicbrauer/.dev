@@ -1,36 +1,50 @@
 import { SpotifyAccessToken } from "./SpotifyAccessToken";
 
 /**
+ * 
+ */
+export interface SpotifyWebAPISong {
+	album: {
+		external_urls: {
+			spotify: string;
+		};
+		images: {
+			height: number;
+			width: number;
+			url: string;
+		}[];
+		name: string;
+	};
+	artists: {
+		external_urls: {
+			spotify: string;
+		};
+		name: string;
+	}[];
+	external_urls: {
+		spotify: string;
+	}
+	duration_ms: number;
+	name: string;
+}
+
+/**
  * Defines the shape of a response from
  * the `/currently-playing` endpoint.
  */
 export interface SpotifyWebAPICurrentlyPlayingResponse {
 	is_playing: boolean;
 	progress_ms: number;
-	item: {
-		album: {
-			external_urls: {
-				spotify: string;
-			};
-			images: {
-				height: number;
-				width: number;
-				url: string;
-			}[];
-			name: string;
-		};
-		artists: {
-			external_urls: {
-				spotify: string;
-			};
-			name: string;
-		}[];
-		external_urls: {
-			spotify: string;
-		}
-		duration_ms: number;
-		name: string;
-	};
+	item: SpotifyWebAPISong;
+}
+
+/**
+ * 
+ */
+export interface SpotifyWebAPIRecentlyPlayedResponse {
+	items: [{
+		track: SpotifyWebAPISong;
+	}]
 }
 
 /**
@@ -45,8 +59,8 @@ export class SpotifyWebAPI {
 	 */
 	public accessToken: SpotifyAccessToken;
 
-	constructor(tokenValue: string) {
-		this.accessToken = new SpotifyAccessToken(tokenValue);
+	constructor(accessToken: SpotifyAccessToken) {
+		this.accessToken = accessToken;
 	}
 
 	/**
@@ -62,21 +76,30 @@ export class SpotifyWebAPI {
 				},
 			});
 
-			switch(response.status) {
-				// Healthy response
-				case 200: {
-					return await response.json();
-				}
-				// Invalid accessToken
-				case 401: {
-					await this.accessToken.refreshAccessToken();
-					return this.requestCurrentlyPlaying();
-				}
-				// Any other response
-				default: {
-					return undefined;
-				}
+			if (!response.ok || response.status === 204) {
+				return undefined;
 			}
+
+			return await response.json() as SpotifyWebAPICurrentlyPlayingResponse;
+		} catch (err) {
+			throw new WebTransportError("Could not reach the Spotify Web API endpoint.");
+		}
+	}
+
+	public async requestRecentlyPlayed(): Promise<SpotifyWebAPIRecentlyPlayedResponse | undefined> {
+		try {
+			const response = await fetch("https://api.spotify.com/v1/me/player/recently-played?limit=1", {
+				method: 'GET',
+				headers: {
+					'Authorization': 'Bearer ' + this.accessToken.value,
+				},
+			});
+
+			if (!response.ok) {
+				return undefined;
+			}
+
+			return await response.json() as SpotifyWebAPIRecentlyPlayedResponse;
 		} catch {
 			throw new WebTransportError("Could not reach the Spotify Web API endpoint.");
 		}

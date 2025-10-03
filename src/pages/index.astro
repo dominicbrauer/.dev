@@ -5,10 +5,22 @@ import SongDisplay from "@/components/SongDisplay.astro";
 ---
 
 <Main title="Dominic Brauer">
-	<!-- <SongDisplay /> -->
-	<p>Song-Display temporarily disabled.</p>
-	<div class="webrings">
-		<WebringBadge site="dominicbrauer.dev" ring="built-with-astro" />
-		<WebringBadge site="dominicbrauer.dev" ring="friends-of-houston" animated />
+	<div class="wrapper cflex">
+		<SongDisplay />
+		<div class="webrings rflex">
+			<WebringBadge site="dominicbrauer.dev" ring="built-with-astro" />
+			<WebringBadge site="dominicbrauer.dev" ring="friends-of-houston" animated />
+		</div>
 	</div>
 </Main>
+
+<style>
+	.wrapper {
+		gap: 1em;
+	}
+
+	.webrings {
+		width: 100%;
+		justify-content: space-evenly;
+	}
+</style>

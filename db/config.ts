@@ -1,16 +1,19 @@
 import { column, defineDb, defineTable } from "astro:db";
 
-const SpotifyWebAPICurrentlyPlaying = defineTable({
+const SpotifyWebAPICurrentSong = defineTable({
 	columns: {
-		data_id: column.number({ primaryKey: true }),
-		data: column.json(),
+		id: column.number({ primaryKey: true }),
+		song: column.json(),
+		progress_ms: column.number({ optional: true }),
 		fetched_at: column.number(),
-		access_token: column.text()
+		access_token: column.text(),
+		token_fetched_at: column.number(),
+		is_playing: column.boolean()
 	}
 });
 
 export default defineDb({
 	tables: {
-		SpotifyWebAPICurrentlyPlaying
+		SpotifyWebAPICurrentSong
 	}
 });

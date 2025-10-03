@@ -1,18 +1,12 @@
 ---
 import BlockIcon from "@/assets/icons/mogus.svg";
-import type { SpotifyWebAPICurrentlyPlayingResponse } from "@/lib/spotify/SpotifyWebAPI";
 import { formatSeconds } from "@/scripts/songdisplay";
 
-type Props = {
-	data: SpotifyWebAPICurrentlyPlayingResponse;
-	fetchedAt: number;
-}
-
-const { data, fetchedAt } = Astro.props;
+const { currentProgress, fetchedAt, totalDuration } = Astro.props;
 
 const now = Date.now();
-const duration = new Date(data.item.duration_ms);
-const progress = new Date(data.progress_ms + (now - fetchedAt));
+const duration = new Date(totalDuration);
+const progress = new Date(currentProgress + (now - fetchedAt));
 ---
 
 <div class="timeline">
