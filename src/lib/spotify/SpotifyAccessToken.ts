@@ -28,9 +28,9 @@ export class SpotifyAccessToken {
 
 	/**
 	 * Refreshes the value of the token or defines a new value if none is set yet.
-	 * @returns {boolean} true if the refresh was successful
+	 * @returns true if the refresh was successful
 	 */
-	public async refreshAccessToken(): Promise<boolean> {
+	public async refreshAccessToken(): Promise<boolean | undefined> {
 		try {
 			const params = new URLSearchParams([
 				['grant_type', 'refresh_token'],
@@ -54,9 +54,7 @@ export class SpotifyAccessToken {
 			
 			this.value = data.access_token;
 			return true;
-		} catch {
-			throw new WebTransportError("Could not reach the Spotify Web API endpoint.");
-		}
+		} catch {}
 	}
 
 }

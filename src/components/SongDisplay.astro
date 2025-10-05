@@ -92,6 +92,11 @@ const song = JSON.parse(data.song as string) as SpotifyWebAPISong;
 		width: var(--songdisplay-width);
 		overflow: hidden;
 		gap: var(--size-s);
+		background-color: var(--bg);
+		/* box-shadow:
+			inset 0px 1px 2px #ffffff50,
+			0 2px 4px #00000030,
+			0 4px 8px #00000015; */
 	}
 
 	.song-information-wrapper {
@@ -99,14 +104,6 @@ const song = JSON.parse(data.song as string) as SpotifyWebAPISong;
 		width: 100%;
 		grid-template-columns: 24px 1fr;
 		gap: var(--size-2xs) var(--size-xs);
-	}
-
-	.cover-wrapper {
-		position: relative;
-	}
-
-	.cover-wrapper canvas {
-		display: none;
 	}
 
 	.song-cover {
@@ -128,7 +125,7 @@ const song = JSON.parse(data.song as string) as SpotifyWebAPISong;
 		left: -50%;
 		z-index: -1;
 		animation: gradientMovement 8s linear infinite alternate-reverse;
-	}
+	} */
 
 	@keyframes gradientMovement {
 		0% {
@@ -151,7 +148,7 @@ const song = JSON.parse(data.song as string) as SpotifyWebAPISong;
 			top: -50%;
 			left: -50%;
 		}
-	} */
+	}
 
 	.song-title {
 		font-size: 1.5em;

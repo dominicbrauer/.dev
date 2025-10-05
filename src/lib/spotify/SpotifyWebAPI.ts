@@ -81,9 +81,7 @@ export class SpotifyWebAPI {
 			}
 
 			return await response.json() as SpotifyWebAPICurrentlyPlayingResponse;
-		} catch (err) {
-			throw new WebTransportError("Could not reach the Spotify Web API endpoint.");
-		}
+		} catch {}
 	}
 
 	public async requestRecentlyPlayed(): Promise<SpotifyWebAPIRecentlyPlayedResponse | undefined> {
@@ -100,9 +98,7 @@ export class SpotifyWebAPI {
 			}
 
 			return await response.json() as SpotifyWebAPIRecentlyPlayedResponse;
-		} catch {
-			throw new WebTransportError("Could not reach the Spotify Web API endpoint.");
-		}
+		} catch {}
 	}
 
 }
