@@ -1,23 +1,54 @@
 ---
 import { Image } from "astro:assets";
+import Placeholder from "@/assets/images/placeholder.webp"
 import DiscIcon from "@lucide/astro/icons/disc";
 import MicIcon from "@lucide/astro/icons/mic-vocal";
+import { db, SpotifyWebAPICurrentSong, eq } from "astro:db";
+import { SpotifyWebAPI } from "@/lib/spotify/SpotifyWebAPI";
 import Timeline from "@/components/Timeline.astro";
+import { SpotifyAccessToken } from "@/lib/spotify/SpotifyAccessToken";
+import type { SpotifyWebAPIRecentlyPlayedResponse } from "@/lib/spotify/SpotifyWebAPI";
 import type { SpotifyWebAPISong } from "@/lib/spotify/SpotifyWebAPI";
-import { actions } from "astro:actions";
 
-const { data, error } = await Astro.callAction(actions.spotify.request, {});
-const song = JSON.parse(data!.song) as SpotifyWebAPISong;
+const data = (await db.select().from(SpotifyWebAPICurrentSong))[0];
+const currentUTC = new Date();
+
+if (currentUTC > new Date(data.fetched_at + 30 * 1000)) {
+	const accessToken = new SpotifyAccessToken(data.access_token);
+
+	if (currentUTC > new Date(data.token_fetched_at + 3600 * 1000)) {
+		await accessToken.refreshAccessToken();
+		data.access_token = accessToken.value;
+		data.token_fetched_at = currentUTC.getTime();
+	}
+
+	const api = new SpotifyWebAPI(accessToken);
+	const currentlyPlayingResponse = await api.requestCurrentlyPlaying();
+
+	let recentlyPlayedResponse: SpotifyWebAPIRecentlyPlayedResponse | undefined;
+	if (!currentlyPlayingResponse) {
+		recentlyPlayedResponse = await api.requestRecentlyPlayed();
+		data.is_playing = false;
+	} else {
+		data.is_playing = currentlyPlayingResponse.is_playing;
+	}
+
+	data.fetched_at = currentUTC.getTime();
+	data.song = JSON.stringify(currentlyPlayingResponse?.item) || JSON.stringify(recentlyPlayedResponse?.items[0].track);
+	data.progress_ms = currentlyPlayingResponse?.progress_ms || null;
+
+	await db.update(SpotifyWebAPICurrentSong).set(data).where(eq(SpotifyWebAPICurrentSong.id, 0));
+}
+
+const song = JSON.parse(data.song as string) as SpotifyWebAPISong;
 ---
 
-{ !error &&
+{ data &&
 <div class="song-display cflex" data-offline={!data.is_playing}>
 	<div class="cover-wrapper">
 		<Image
 			class="song-cover"
-			src={song.album.images[0].url}
-			width={song.album.images[0].width}
-			height={song.album.images[0].height}
+			src={Placeholder}
 			alt="The album cover of the currently playing song."
 		/>
 	</div>
@@ -41,19 +72,13 @@ const song = JSON.parse(data!.song) as SpotifyWebAPISong;
 			</span>
 		</div>
 		<DiscIcon class="disc-svg" />
-		<span class="album-wrapper">
+		<span class="album-title-wrapper">
 			<a href={song.album.external_urls.spotify} target="_blank">
 				{song.album.name}
 			</a>
 		</span>
 	</div>
-	{data.is_playing &&
-		<Timeline
-			currentProgress={data.progress_ms}
-			fetchedAt={data.fetched_at}
-			totalDuration={song.duration_ms}
-		/>
-	}
+	{data.is_playing && <Timeline currentProgress={data?.progress_ms} fetchedAt={data.fetched_at} totalDuration={song.duration_ms} />}
 </div>
 }
 
@@ -138,7 +163,7 @@ const song = JSON.parse(data!.song) as SpotifyWebAPISong;
 		grid-column-start: 1;
 	}
 
-	.artists-wrapper, .album-wrapper {
+	.artists-wrapper, .album-title-wrapper {
 		display: flex;
 		grid-column-start: 2;
 		align-items: center;
@@ -149,6 +174,14 @@ const song = JSON.parse(data!.song) as SpotifyWebAPISong;
 		aspect-ratio: 1 / 1;
 		height: 24px;
 		width: auto;
+	}
+
+	a {
+		text-decoration: none;
+	}
+
+	a:hover {
+		text-decoration: underline;
 	}
 
 	.pause-icon {
@@ -177,58 +210,5 @@ const song = JSON.parse(data!.song) as SpotifyWebAPISong;
 </style>
 
 <script>
-	import type { SpotifyWebAPISong } from "@/lib/spotify/SpotifyWebAPI";
-	import { actions } from "astro:actions";
 
-	const songDisplay = document.querySelector<HTMLDivElement>('.song-display');
-	const songCover = document.querySelector<HTMLImageElement>('.song-display .song-cover');
-	const songTitle = document.querySelector<HTMLAnchorElement>('.song-display .song-title a');
-	const songArtistsWrapper = document.querySelector<HTMLSpanElement>('.song-display .artists-wrapper span');
-	const songAlbum = document.querySelector<HTMLAnchorElement>('.song-display .album-wrapper a');
-	const timeLine = document.querySelector<HTMLDivElement>('.song-display .timeline');
-
-	/**
-	 * Updates the `SongDisplay` with the newest data available.
-	 */
-	async function update() {
-		const { data, error } = await actions.spotify.request();
-		const song = JSON.parse(data!.song) as SpotifyWebAPISong;
-
-		if (error) {
-			console.log("Error while fetching new song data: " + error);
-			return;
-		}
-
-		songDisplay!.dataset.offline = String(!data.is_playing);
-
-		songArtistsWrapper!.innerHTML = "";
-		
-		songCover!.src = song.album.images[0].url;
-		songCover!.width = song.album.images[0].width;
-		songCover!.height = song.album.images[0].height;
-
-		songTitle!.innerText = song.name;
-		songTitle!.href = song.external_urls.spotify;
-
-		song.artists.forEach((artist, index) => {
-			const entry = document.createElement('a');
-			entry.classList.add('artist');
-			entry.innerText = artist.name;
-			entry.href = artist.external_urls.spotify;
-			entry.target = "_blank";
-
-			songArtistsWrapper?.appendChild(entry);
-
-			if (index < song.artists.length - 1) {
-				const separator = document.createElement('span');
-				separator.innerText = " • ";
-				songArtistsWrapper?.appendChild(separator);
-			}
-		});
-
-		songAlbum!.innerText = song.album.name;
-		songAlbum!.href = song.album.external_urls.spotify;
-	}
-
-	// const interval = window.setInterval(async () => update(), 30 * 1000);
 </script>

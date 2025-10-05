@@ -55,6 +55,14 @@ svg {
 	stroke: var(--text-muted);
 }
 
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
 .rflex {
 	display: flex;
 	flex-direction: row;

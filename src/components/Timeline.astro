@@ -1,6 +1,6 @@
 ---
 import BlockIcon from "@/assets/icons/mogus.svg";
-import { formatSeconds } from "@/scripts/songdisplay";
+import { formatSeconds } from "@/lib/helpers.ts";
 
 const { currentProgress, fetchedAt, totalDuration } = Astro.props;
 
@@ -56,7 +56,7 @@ const progress = new Date(currentProgress + (now - fetchedAt));
 </style>
 
 <script>
-	import { formatSeconds } from "@/scripts/songdisplay";
+	import { formatSeconds } from "@/lib/helpers.ts";
 
 	const blockElements = document.querySelectorAll<SVGElement>('.block');
 	const progressSpan = document.querySelector<HTMLSpanElement>('.progress');
@@ -93,5 +93,5 @@ const progress = new Date(currentProgress + (now - fetchedAt));
 	}
 
 	updateTimeline();
-	const progressCounter = window.setInterval(() => updateTimeline(), 1000);
+	const progressCounter = window.setInterval(updateTimeline, 1000);
 </script>
