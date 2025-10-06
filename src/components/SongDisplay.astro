@@ -230,5 +230,5 @@ const song = JSON.parse(data!.song) as SpotifyWebAPISong;
 		songAlbum!.href = song.album.external_urls.spotify;
 	}
 
-	// const interval = window.setInterval(async () => update(), 30 * 1000);
+	const interval = window.setInterval(update, 30 * 1000);
 </script>
