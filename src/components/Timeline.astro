@@ -49,7 +49,6 @@ const progress = (() => {
 		top: 2px;
 		opacity: 0;
 		transition: opacity 500ms ease;
-		/* filter: drop-shadow(0px 2px 8px var(--primary)); */
 	}
 
 	.timecodes {
@@ -79,7 +78,7 @@ const progress = (() => {
 
 	blockElements.forEach((block, index) => {
 		block.style.left = `${index * 6 + 4}px`;
-		block.style.filter = `brightness(${0.5 + index * 0.025})`;
+		block.style.filter = `brightness(${0.4 + index * 0.025})`;
 	});
 
 	/**
