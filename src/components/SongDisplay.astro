@@ -47,13 +47,12 @@ const song = JSON.parse(data!.song) as SpotifyWebAPISong;
 			</a>
 		</span>
 	</div>
-	{data.is_playing &&
-		<Timeline
-			currentProgress={data.progress_ms}
-			fetchedAt={data.fetched_at}
-			totalDuration={song.duration_ms}
-		/>
-	}
+	<Timeline
+		currentProgress={data.progress_ms}
+		fetchedAt={data.fetched_at}
+		totalDuration={song.duration_ms}
+		class:list={[!data.is_playing && "hidden"]}
+	/>
 </div>
 }
 
@@ -66,10 +65,6 @@ const song = JSON.parse(data!.song) as SpotifyWebAPISong;
 		overflow: hidden;
 		gap: var(--size-s);
 		background-color: var(--bg);
-		/* box-shadow:
-			inset 0px 1px 2px #ffffff50,
-			0 2px 4px #00000030,
-			0 4px 8px #00000015; */
 	}
 
 	.song-information-wrapper {
@@ -79,49 +74,53 @@ const song = JSON.parse(data!.song) as SpotifyWebAPISong;
 		gap: var(--size-2xs) var(--size-xs);
 	}
 
+	.cover-wrapper {
+		position: relative;
+		z-index: 0;
+		overflow: visible;
+	}
+
 	.song-cover {
 		aspect-ratio: 1 / 1;
 		width: 100%;
 		height: auto;
 		grid-row-start: 1;
+		z-index: 100;
 	}
 
-	/* .song-display::before {
+	/* .song-display[data-offline="false"] .cover-wrapper::before {
 		content: '';
 		position: absolute;
 		width: 100%;
 		height: 100%;
-		background-image: radial-gradient(circle at center, var(--primary), var(--bg) 50%);
-		filter: blur(1rem);
+		background-image: radial-gradient(circle at center, var(--primary), var(--bg) 150%);
+		filter: blur(1em);
 		opacity: .5;
-		top: -50%;
-		left: -50%;
+		top: 0;
+		left: 0;
 		z-index: -1;
-		animation: gradientMovement 8s linear infinite alternate-reverse;
-	} */
+		animation: gradientBeat 3s ease infinite;
+	}
 
-	@keyframes gradientMovement {
-		0% {
-			top: -50%;
-			left: -50%;
-		}
-		25% {
-			top: -50%;
-			left: 50%;
-		}
+	@keyframes gradientBeat {
+		0%,
 		50% {
-			top: 50%;
-			left: 50%;
+			opacity: .75;
 		}
+		25%,
 		75% {
-			top: 50%;
-			left: -50%;
+			opacity: .5;
+		}
+		12.5%,
+		37.5%,
+		62.5%,
+		87.5% {
+			opacity: .25;
 		}
 		100% {
-			top: -50%;
-			left: -50%;
+			opacity: .5;
 		}
-	}
+	} */
 
 	.song-title {
 		font-size: 1.5em;
@@ -199,6 +198,16 @@ const song = JSON.parse(data!.song) as SpotifyWebAPISong;
 			return;
 		}
 
+		data.is_playing ? timeLine?.classList.remove('hidden') : timeLine?.classList.add('hidden');
+
+		window.dispatchEvent(new CustomEvent('updateTimeline', {
+			detail: {
+				msProgress: data.progress_ms,
+				msDuration: song.duration_ms,
+				fetched_at: data.fetched_at
+			}
+		}));
+
 		songDisplay!.dataset.offline = String(!data.is_playing);
 
 		songArtistsWrapper!.innerHTML = "";
@@ -230,5 +239,5 @@ const song = JSON.parse(data!.song) as SpotifyWebAPISong;
 		songAlbum!.href = song.album.external_urls.spotify;
 	}
 
-	// const interval = window.setInterval(async () => update(), 30 * 1000);
+	const interval = window.setInterval(update, 30 * 1000);
 </script>

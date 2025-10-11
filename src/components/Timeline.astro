@@ -1,15 +1,15 @@
 ---
-import BlockIcon from "@/assets/icons/mogus.svg";
+import BlockIcon from "@/assets/icons/timeline_block.svg";
 import { formatSeconds } from "@/lib/helpers.ts";
 
-const { currentProgress, fetchedAt, totalDuration } = Astro.props;
+const { currentProgress, fetchedAt, totalDuration, class: className } = Astro.props;
 
 const now = Date.now();
 const duration = new Date(totalDuration);
 const progress = new Date(currentProgress + (now - fetchedAt));
 ---
 
-<div class="timeline">
+<div class:list={["timeline", className]}>
 	<div class="bar">
 		{Array.from({length: 32}).map(() => (
 			<BlockIcon class="block" />
@@ -26,8 +26,8 @@ const progress = new Date(currentProgress + (now - fetchedAt));
 </div>
 
 <style>
-	.timeline {
-
+	.timeline.hidden {
+		display: none;
 	}
 
 	.bar {
@@ -63,7 +63,15 @@ const progress = new Date(currentProgress + (now - fetchedAt));
 	const durationSpan = document.querySelector<HTMLSpanElement>('.duration');
 
 	let msProgress = new Date(Number(progressSpan?.dataset.progress));
-	const msDuration = new Date(Number(durationSpan?.dataset.duration));
+	let msDuration = new Date(Number(durationSpan?.dataset.duration));
+
+	window.addEventListener('updateTimeline', (e) => {
+		const event = (e as CustomEvent).detail;
+		msProgress = new Date(event.msProgress + (Date.now() - event.fetched_at));
+		msDuration = new Date(event.msDuration);
+		durationSpan!.textContent = `${msDuration.getMinutes()}:${formatSeconds(msDuration.getSeconds())}`;
+		updateTimeline();
+	});
 
 	blockElements.forEach((block, index) => {
 		block.style.left = `${index * 6 + 4}px`;
@@ -75,21 +83,19 @@ const progress = new Date(currentProgress + (now - fetchedAt));
 	 * and progress counter every second.
 	 */
 	function updateTimeline() {
+		// skip counting if song ends
+		if (msProgress.getTime() >= msDuration.getTime() - 1000) {
+			return;
+		}
+
 		const expectedBlockCount = Math.round(msProgress.getTime() / msDuration.getTime() * blockElements.length);
 
 		blockElements.forEach((block, index) => {
-			if (index <= expectedBlockCount) {
-				block.style.opacity = '1';
-			}
+			block.style.opacity = (index <= expectedBlockCount) ? '1' : '0';
 		});
 
 		msProgress.setTime(msProgress.getTime() + 1000);
 		progressSpan!.textContent = `${msProgress.getMinutes()}:${formatSeconds(msProgress.getSeconds())}`;
-
-		// stop counting if the song ends
-		if (msProgress.getTime() >= msDuration.getTime()) {
-			window.clearInterval(progressCounter);
-		}
 	}
 
 	updateTimeline();
