@@ -6,7 +6,10 @@ const { currentProgress, fetchedAt, totalDuration, class: className } = Astro.pr
 
 const now = Date.now();
 const duration = new Date(totalDuration);
-const progress = new Date(currentProgress + (now - fetchedAt));
+const progress = (() => {
+	const calc = new Date(currentProgress + (now - fetchedAt));
+	return calc < duration ? calc : duration;
+})();
 ---
 
 <div class:list={["timeline", className]}>
@@ -46,6 +49,7 @@ const progress = new Date(currentProgress + (now - fetchedAt));
 		top: 2px;
 		opacity: 0;
 		transition: opacity 500ms ease;
+		/* filter: drop-shadow(0px 2px 8px var(--primary)); */
 	}
 
 	.timecodes {
