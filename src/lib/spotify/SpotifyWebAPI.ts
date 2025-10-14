@@ -44,6 +44,7 @@ export interface SpotifyWebAPICurrentlyPlayingResponse {
 export interface SpotifyWebAPIRecentlyPlayedResponse {
 	items: [{
 		track: SpotifyWebAPISong;
+		played_at: string;
 	}]
 }
 
@@ -81,7 +82,9 @@ export class SpotifyWebAPI {
 			}
 
 			return await response.json() as SpotifyWebAPICurrentlyPlayingResponse;
-		} catch {}
+		} catch {
+			return undefined;
+		}
 	}
 
 	public async requestRecentlyPlayed(): Promise<SpotifyWebAPIRecentlyPlayedResponse | undefined> {
@@ -98,7 +101,9 @@ export class SpotifyWebAPI {
 			}
 
 			return await response.json() as SpotifyWebAPIRecentlyPlayedResponse;
-		} catch {}
+		} catch {
+			return undefined;
+		}
 	}
 
 }

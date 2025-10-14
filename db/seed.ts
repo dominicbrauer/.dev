@@ -8,6 +8,7 @@ export default async function() {
 		access_token: "abc123",
 		token_fetched_at: 123,
 		is_playing: false,
-		progress_ms: null
+		progress_ms: null,
+		last_played: null,
 	}]);
 }

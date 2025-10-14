@@ -2,37 +2,38 @@
 import BlockIcon from "@/assets/icons/timeline_block.svg";
 import { formatSeconds } from "@/lib/helpers.ts";
 
-const { currentProgress, fetchedAt, totalDuration, class: className } = Astro.props;
+type Props = {
+	progress: number | null;
+	duration: number;
+	fetched_at: number;
+};
 
-const now = Date.now();
-const duration = new Date(totalDuration);
-const progress = (() => {
-	const calc = new Date(currentProgress + (now - fetchedAt));
+const { progress, duration, fetched_at } = Astro.props;
+
+const realProgress = (() => {
+	if (!progress) {
+		return null;
+	}
+	const calc = progress + (Date.now() - fetched_at);
 	return calc < duration ? calc : duration;
 })();
 ---
 
-<div class:list={["timeline", className]}>
+<div class="timeline">
 	<div class="bar">
 		{Array.from({length: 32}).map(() => (
 			<BlockIcon class="block" />
 		))}
 	</div>
 	<div class="timecodes rflex">
-		<span data-progress={progress.getTime()} class="progress">
-			{`${progress.getMinutes()}:${formatSeconds(progress.getSeconds())}`}
-		</span>
-		<span data-duration={duration.getTime()} class="duration">
-			{`${duration.getMinutes()}:${formatSeconds(duration.getSeconds())}`}
+		<span data-progress={realProgress} class="progress">-:--</span>
+		<span data-duration={duration} class="duration">
+			{`${new Date(duration).getMinutes()}:${formatSeconds(new Date(duration).getSeconds())}`}
 		</span>
 	</div>
 </div>
 
 <style>
-	.timeline.hidden {
-		display: none;
-	}
-
 	.bar {
 		position: relative;
 		width: 100%;
@@ -65,14 +66,17 @@ const progress = (() => {
 	const progressSpan = document.querySelector<HTMLSpanElement>('.progress');
 	const durationSpan = document.querySelector<HTMLSpanElement>('.duration');
 
-	let msProgress = new Date(Number(progressSpan?.dataset.progress));
-	let msDuration = new Date(Number(durationSpan?.dataset.duration));
+	let progress = new Date(Number(progressSpan?.dataset.progress));
+	let duration = new Date(Number(durationSpan?.dataset.duration));
 
-	window.addEventListener('updateTimeline', (e) => {
-		const event = (e as CustomEvent).detail;
-		msProgress = new Date(event.msProgress + (Date.now() - event.fetched_at));
-		msDuration = new Date(event.msDuration);
-		durationSpan!.textContent = `${msDuration.getMinutes()}:${formatSeconds(msDuration.getSeconds())}`;
+	window.addEventListener('updateTimeline', (event) => {
+		const e = (event as CustomEvent).detail;
+		progress.setTime((() => {
+			const calc = e.progress + (Date.now() - e.fetched_at);
+			return calc < e.duration ? calc : e.duration;
+		})());
+		duration = new Date(e.duration);
+		durationSpan!.textContent = `${duration.getMinutes()}:${formatSeconds(duration.getSeconds())}`;
 		updateTimeline();
 	});
 
@@ -86,21 +90,21 @@ const progress = (() => {
 	 * and progress counter every second.
 	 */
 	function updateTimeline() {
-		// skip counting if song ends
-		if (msProgress.getTime() >= msDuration.getTime() - 1000) {
-			return;
-		}
-
-		const expectedBlockCount = Math.round(msProgress.getTime() / msDuration.getTime() * blockElements.length);
+		const expectedBlockCount = Math.round(progress.getTime() / duration.getTime() * blockElements.length);
 
 		blockElements.forEach((block, index) => {
 			block.style.opacity = (index <= expectedBlockCount) ? '1' : '0';
 		});
 
-		msProgress.setTime(msProgress.getTime() + 1000);
-		progressSpan!.textContent = `${msProgress.getMinutes()}:${formatSeconds(msProgress.getSeconds())}`;
+		// skip counting if song ends
+		if (progress.getTime() >= duration.getTime()) {
+			return;
+		}
+
+		progress.setTime(progress.getTime() + 1000);
+		progressSpan!.textContent = `${progress.getMinutes()}:${formatSeconds(progress.getSeconds())}`;
 	}
 
 	updateTimeline();
-	const progressCounter = window.setInterval(updateTimeline, 1000);
+	window.setInterval(updateTimeline, 1000);
 </script>
