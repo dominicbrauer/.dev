@@ -1,0 +1,87 @@
+---
+import { Image } from "astro:assets";
+import ProfilePicture from "@/assets/images/profile.webp";
+import { CodeXmlIcon, CalendarFoldIcon, MapPinIcon } from "@lucide/astro";
+---
+
+<div class="personal-info card">
+	<figure class="profile-picture-wrapper">
+		<Image
+			class="profile-picture"
+			src={ProfilePicture}
+			alt="My profile picture."
+		/>
+	</figure>
+	<span class="name">Dominic Brauer</span>
+	<div class="info-wrapper">
+		<CalendarFoldIcon />
+		<span>19 years old</span>
+		<MapPinIcon />
+		<span>Germany, RV</span>
+		<CodeXmlIcon />
+		<span>2 years of experience</span>
+	</div>
+	<p class="summary">
+		Lorem ipsum dolor sit amet, consectetur adipisicing elit. Dolorum explicabo fugit dignissimos repellendus debitis ipsam, earum consequuntur animi minima? Harum, quis doloribus! Soluta modi recusandae laboriosam voluptate quam sint quisquam, nobis laudantium assumenda eligendi ab, placeat architecto reprehenderit tempore autem ipsa cupiditate accusantium magnam corrupti maiores nihil excepturi iusto repudiandae mollitia.<br><br>I do not know why there is this space beneath :(
+	</p>
+</div>
+
+<style>
+	.personal-info {
+		display: grid;
+		grid-template-columns: min-content min-content;
+		grid-template-rows: min-content min-content min-content;
+		gap: var(--size-m);
+	}
+
+	.profile-picture-wrapper {
+		grid-row: 1 / span 2;
+		grid-column: 1;
+		aspect-ratio: 1 / 1;
+		height: 100%;
+		width: auto;
+		object-fit: contain;
+		border-radius: var(--br-hard);
+		overflow: hidden;
+	}
+
+	.profile-picture {
+		max-height: 100%;
+		max-width: 100%;
+	}
+
+	.name {
+		grid-column: 2;
+		grid-row: 1;
+		font-weight: 700;
+		font-size: var(--size-xl);
+		text-wrap: nowrap;
+		color: var(--text);
+		height: fit-content;
+	}
+
+	.info-wrapper {
+		grid-column: 2;
+		grid-row: 2;
+		display: grid;
+		grid-template-columns: auto 1fr;
+		column-gap: var(--size-s);
+		row-gap: var(--size-xs);
+	}
+
+	.info-wrapper svg {
+		grid-column: 1;
+	}
+
+	.info-wrapper span {
+		align-self: center;
+		text-wrap: nowrap;
+		grid-column: 2;
+	}
+
+	.summary {
+		grid-column: 1 / span 2;
+		grid-row: 3;
+		height: fit-content;
+	}
+</style>

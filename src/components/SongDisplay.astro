@@ -3,9 +3,7 @@ import { Image } from "astro:assets";
 import { actions } from "astro:actions";
 import { getFormatedTime } from "@/lib/helpers";
 import "@/styles/songDisplayAngle.css";
-import DiscIcon from "@lucide/astro/icons/disc";
-import MicIcon from "@lucide/astro/icons/mic-vocal";
-import PauseIcon from "@lucide/astro/icons/square-pause";
+import { DiscIcon, MicVocalIcon, SquarePauseIcon } from "@lucide/astro";
 import Timeline from "@/components/Timeline.astro";
 
 const { data, error } = await Astro.callAction(actions.spotify.request, {});
@@ -28,7 +26,7 @@ const { data, error } = await Astro.callAction(actions.spotify.request, {});
 				{data.song.name}
 			</a>
 		</span>
-		<MicIcon class="mic-svg" />
+		<MicVocalIcon class="mic-svg" />
 		<div class="artists-wrapper">
 			<span>
 				{data.song.artists.map((artist, index) => (
@@ -47,7 +45,7 @@ const { data, error } = await Astro.callAction(actions.spotify.request, {});
 				{data.song.album.name}
 			</a>
 		</span>
-		<PauseIcon class="pause-icon" />
+		<SquarePauseIcon class="pause-icon" />
 		<span class="last-played">
 			{data.last_played ? `listened ${getFormatedTime(data.last_played)} ago` : "paused"}
 		</span>

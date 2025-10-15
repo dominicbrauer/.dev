@@ -77,4 +77,5 @@ a:hover {
 	border: 1px solid var(--border);
 	padding: var(--size-l);
 	background-color: var(--bg);
+	height: fit-content;
 }
