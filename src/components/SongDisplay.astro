@@ -1,18 +1,18 @@
 ---
-import "@/styles/songDisplayAngle.css";
 import { Image } from "astro:assets";
+import { actions } from "astro:actions";
+import { getFormatedTime } from "@/lib/helpers";
+import "@/styles/songDisplayAngle.css";
 import DiscIcon from "@lucide/astro/icons/disc";
 import MicIcon from "@lucide/astro/icons/mic-vocal";
 import PauseIcon from "@lucide/astro/icons/square-pause";
 import Timeline from "@/components/Timeline.astro";
-import { actions } from "astro:actions";
-import { getFormatedTime } from "@/lib/helpers";
 
 const { data, error } = await Astro.callAction(actions.spotify.request, {});
 ---
 
 { !error && data &&
-<div class="song-display cflex" data-offline={!data.is_playing}>
+<div class="song-display card cflex" data-offline={!data.is_playing}>
 	<div class="cover-wrapper">
 		<Image
 			class="song-cover"
@@ -62,13 +62,8 @@ const { data, error } = await Astro.callAction(actions.spotify.request, {});
 
 <style>
 	.song-display {
-		position: relative;
-		border: 1px solid var(--border);
-		padding: var(--size-l);
-		width: var(--songdisplay-width);
-		overflow: hidden;
+		width: var(--cardwidth-small);
 		gap: var(--size-s);
-		background-color: var(--bg);
 	}
 
 	.song-information-wrapper {
@@ -175,7 +170,7 @@ const { data, error } = await Astro.callAction(actions.spotify.request, {});
 
 <script>
 	import { getFormatedTime } from "@/lib/helpers";
-import { actions } from "astro:actions";
+	import { actions } from "astro:actions";
 
 	const songDisplay = document.querySelector<HTMLDivElement>('.song-display');
 	const songCover = document.querySelector<HTMLImageElement>('.song-display .song-cover');
@@ -240,5 +235,5 @@ import { actions } from "astro:actions";
 		lastPlayed!.innerText = !!data.last_played ? `listened ${getFormatedTime(data.last_played)} ago` : "paused";
 	}
 
-	const interval = window.setInterval(update, 30 * 1000);
+	window.setInterval(update, 30000);
 </script>

@@ -35,7 +35,7 @@
 
 	/* Sizes */
 	--navbar-height: 96px;
-	--songdisplay-width: 256px;
+	--cardwidth-small: 256px;
 }
 
 * {
@@ -71,4 +71,10 @@ a:hover {
 .cflex {
 	display: flex;
 	flex-direction: column;
+}
+
+.card {
+	border: 1px solid var(--border);
+	padding: var(--size-l);
+	background-color: var(--bg);
 }
