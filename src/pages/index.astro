@@ -6,23 +6,47 @@ import PersonalInfo from "@/components/PersonalInfo.astro";
 ---
 
 <Main title="Dominic Brauer">
-	<div class="wrapper rflex">
-		<SongDisplay />
-		<PersonalInfo />
-	</div>
-	<div class="webrings rflex">
-		<WebringBadge site="dominicbrauer.dev" ring="built-with-astro" />
-		<WebringBadge site="dominicbrauer.dev" ring="friends-of-houston" animated />
-	</div>
+	<main class="cflex">
+		<section class="hero">
+			<h1>Dominic Brauer</h1>
+		</section>
+		<section class="grid-area cflex">
+			<!-- <PersonalInfo /> -->
+			<SongDisplay />
+			<div class="webrings rflex card">
+				<WebringBadge site="dominicbrauer.dev" ring="built-with-astro" />
+				<WebringBadge site="dominicbrauer.dev" ring="friends-of-houston" animated />
+			</div>
+		</section>
+	</main>
 </Main>
 
 <style>
-	.wrapper {
-		margin-bottom: var(--size-l);
+	main {
+		padding-top: calc(var(--navbar-height) + 2em);
+		max-width: 1200px;
+		width: 100%;
+		position: relative;
+		left: 50%;
+		transform: translateX(-50%);
+		align-items: center;
+	}
+
+	.hero {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		height: 8rem;
+		margin-bottom: var(--size-xl);
+	}
+
+	.grid-area {
 		gap: var(--size-l);
+		align-items: center;
 	}
 
 	.webrings {
-		gap: var(--size-l);
+		gap: var(--size-m);
+		max-width: fit-content;
 	}
 </style>

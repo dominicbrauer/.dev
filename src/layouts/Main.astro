@@ -16,20 +16,6 @@ const { title } = Astro.props;
 	</head>
 	<body>
 		<NavBar />
-		<main class="cflex">
-			<slot />
-		</main>
+		<slot />
 	</body>
 </html>
-
-<style>
-	main {
-		padding-top: calc(var(--navbar-height) + 2em);
-		max-width: 1200px;
-		width: 100%;
-		position: relative;
-		left: 50%;
-		transform: translateX(-50%);
-		align-items: center;
-	}
-</style>

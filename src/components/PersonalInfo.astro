@@ -5,13 +5,11 @@ import { CodeXmlIcon, CalendarFoldIcon, MapPinIcon } from "@lucide/astro";
 ---
 
 <div class="personal-info card">
-	<figure class="profile-picture-wrapper">
-		<Image
-			class="profile-picture"
-			src={ProfilePicture}
-			alt="My profile picture."
-		/>
-	</figure>
+	<Image
+		class="profile-picture"
+		src={ProfilePicture}
+		alt="My profile picture."
+	/>
 	<span class="name">Dominic Brauer</span>
 	<div class="info-wrapper">
 		<CalendarFoldIcon />
@@ -22,7 +20,7 @@ import { CodeXmlIcon, CalendarFoldIcon, MapPinIcon } from "@lucide/astro";
 		<span>2 years of experience</span>
 	</div>
 	<p class="summary">
-		Lorem ipsum dolor sit amet, consectetur adipisicing elit. Dolorum explicabo fugit dignissimos repellendus debitis ipsam, earum consequuntur animi minima? Harum, quis doloribus! Soluta modi recusandae laboriosam voluptate quam sint quisquam, nobis laudantium assumenda eligendi ab, placeat architecto reprehenderit tempore autem ipsa cupiditate accusantium magnam corrupti maiores nihil excepturi iusto repudiandae mollitia.<br><br>I do not know why there is this space beneath :(
+		This website is work in progress. I'd recommend to check it out later again!
 	</p>
 </div>
 
@@ -32,6 +30,7 @@ import { CodeXmlIcon, CalendarFoldIcon, MapPinIcon } from "@lucide/astro";
 		grid-template-columns: min-content min-content;
 		grid-template-rows: min-content min-content min-content;
 		gap: var(--size-m);
+		max-width: min-content;
 	}
 
 	.profile-picture-wrapper {
@@ -46,8 +45,11 @@ import { CodeXmlIcon, CalendarFoldIcon, MapPinIcon } from "@lucide/astro";
 	}
 
 	.profile-picture {
-		max-height: 100%;
-		max-width: 100%;
+		grid-column: 1;
+		grid-row: 1 / span 2;
+		width: 160px;
+		height: auto;
+		object-fit: contain;
 	}
 
 	.name {
