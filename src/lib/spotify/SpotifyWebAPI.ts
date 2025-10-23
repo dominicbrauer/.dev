@@ -1,7 +1,7 @@
 import { SpotifyAccessToken } from "./SpotifyAccessToken";
 
 /**
- * 
+ * The object structure for a spotify song.
  */
 export interface SpotifyWebAPISong {
 	album: {
@@ -29,8 +29,7 @@ export interface SpotifyWebAPISong {
 }
 
 /**
- * Defines the shape of a response from
- * the `/currently-playing` endpoint.
+ * Defines the shape of a response from the `/currently-playing` endpoint.
  */
 export interface SpotifyWebAPICurrentlyPlayingResponse {
 	is_playing: boolean;
@@ -39,7 +38,7 @@ export interface SpotifyWebAPICurrentlyPlayingResponse {
 }
 
 /**
- * 
+ * Defines the shape of a response from the `/recently-played` endpoint.
  */
 export interface SpotifyWebAPIRecentlyPlayedResponse {
 	items: [{
@@ -49,8 +48,7 @@ export interface SpotifyWebAPIRecentlyPlayedResponse {
 }
 
 /**
- * Represents the Spotify Web API
- * with all required endpoints.
+ * Represents the Spotify Web API with all required endpoints.
  */
 export class SpotifyWebAPI {
 
@@ -66,7 +64,7 @@ export class SpotifyWebAPI {
 
 	/**
 	 * Retrieves the information about the currently playing song.
-	 * @returns response containing the song
+	 * @returns response object containing the song
 	 */
 	public async requestCurrentlyPlaying(): Promise<SpotifyWebAPICurrentlyPlayingResponse | undefined> {
 		try {
@@ -87,6 +85,10 @@ export class SpotifyWebAPI {
 		}
 	}
 
+	/**
+	 * Retrieves the most recently played song.
+	 * @returns response object for the most recently played song
+	 */
 	public async requestRecentlyPlayed(): Promise<SpotifyWebAPIRecentlyPlayedResponse | undefined> {
 		try {
 			const response = await fetch("https://api.spotify.com/v1/me/player/recently-played?limit=1", {

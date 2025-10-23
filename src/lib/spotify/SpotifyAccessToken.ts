@@ -10,15 +10,12 @@ export interface SpotifyAccessTokenResponse {
 }
 
 /**
- * Represents a Spotify Web API
- * access token.
+ * Represents a Spotify Web API access token.
  */
 export class SpotifyAccessToken {
 
 	/**
 	 * The value is the actual token string.
-	 * It can be undefined if a new AccessToken
-	 * instance has not been granted a token yet.
 	 */
 	public value: string;
 
@@ -27,7 +24,7 @@ export class SpotifyAccessToken {
 	}
 
 	/**
-	 * Refreshes the value of the token or defines a new value if none is set yet.
+	 * Refreshes the value of the access token.
 	 */
 	public async refreshAccessToken() {
 		try {

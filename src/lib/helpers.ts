@@ -9,8 +9,7 @@ export function formatSeconds(seconds: number): string {
 }
 
 /**
- * Retrieves an optimally formated text version
- * for a certain UTC datetime.
+ * Retrieves the maximum rounded time of a UTC datetime in its formated text version (examples below).
  * @param datetime time in milliseconds
  * @returns the given datetime as text (e.g. '34 minutes', '16 hours', 5 days, 2 weeks)
  */
