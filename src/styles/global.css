@@ -12,8 +12,8 @@
 	--bg: oklch(18% 1% 240);
 	--bg-dark: oklch(15% 1% 240);
 
-	--bg-skeleton1: oklch(40% 1% 240);
-	--bg-skeleton2: oklch(50% 1% 240);
+	--bg-skeleton1: oklch(40% 1% 240 / 0.5);
+	--bg-skeleton2: oklch(50% 1% 240 / 0.5);
 
 	--primary: oklch(45% 50% 30);
 	--secondary: ;
