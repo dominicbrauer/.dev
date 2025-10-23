@@ -1,18 +1,19 @@
 ---
 import Main from "@/layouts/Main.astro";
 import WebringBadge from "astro-webrings/badge";
-import SongDisplay from "@/components/SongDisplay.astro";
-import PersonalInfo from "@/components/PersonalInfo.astro";
+import SongDisplay from "@/components/SongDisplay/SongDisplay.astro";
+import SongDisplaySkeleton from "@/components/SongDisplay/SongDisplaySkeleton.astro";
 ---
 
 <Main title="Dominic Brauer">
 	<main class="cflex">
-		<section class="hero">
+		<!--<section class="hero">
 			<h1>Dominic Brauer</h1>
-		</section>
+		</section>-->
 		<section class="grid-area cflex">
-			<!-- <PersonalInfo /> -->
-			<SongDisplay />
+			<SongDisplay server:defer>
+				<SongDisplaySkeleton slot="fallback" />
+			</SongDisplay>
 			<div class="webrings rflex card">
 				<WebringBadge site="dominicbrauer.dev" ring="built-with-astro" />
 				<WebringBadge site="dominicbrauer.dev" ring="friends-of-houston" animated />
@@ -23,7 +24,8 @@ import PersonalInfo from "@/components/PersonalInfo.astro";
 
 <style>
 	main {
-		padding-top: calc(var(--navbar-height) + 2em);
+		padding-top: calc(var(--navbar-height) + var(--size-xl));
+		padding-bottom: var(--size-xl);
 		max-width: 1200px;
 		width: 100%;
 		position: relative;

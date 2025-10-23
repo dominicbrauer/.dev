@@ -12,6 +12,9 @@
 	--bg: oklch(18% 1% 240);
 	--bg-dark: oklch(15% 1% 240);
 
+	--bg-skeleton1: oklch(40% 1% 240);
+	--bg-skeleton2: oklch(50% 1% 240);
+
 	--primary: oklch(45% 50% 30);
 	--secondary: ;
 
@@ -25,8 +28,8 @@
 
 	--gradient: linear-gradient(0deg, var(--text) 80%, var(--primary) 20%);
 
-	--br-soft: .25em;
-	--br-hard: .5em;
+	--br-soft: .25rem;
+	--br-hard: .5rem;
 
 	--danger: oklch(60% 50% 30);
 	--warning: oklch(85% 50% 85);
@@ -78,4 +81,18 @@ a:hover {
 	padding: var(--size-l);
 	background-color: var(--bg);
 	height: fit-content;
+}
+
+.skeleton {
+	border-radius: var(--br-hard);
+	animation: skeleton-pulse 1s linear infinite alternate;
+}
+
+@keyframes skeleton-pulse {
+	from {
+		background-color: var(--bg-skeleton1);
+	}
+	to {
+		background-color: var(--bg-skeleton2);
+	}
 }

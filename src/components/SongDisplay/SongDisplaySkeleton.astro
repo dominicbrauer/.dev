@@ -1,0 +1,26 @@
+---
+import "@/styles/songDisplay.css";
+---
+
+<div class="song-display card cflex">
+	<div class="song-cover skeleton"></div>
+	<div class="song-information-wrapper cflex">
+		<div class="song-title skeleton"></div>
+		<div class="entry skeleton"></div>
+		<div class="entry skeleton"></div>
+		<div class="entry skeleton"></div>
+	</div>
+</div>
+
+<style>
+	.song-title.skeleton {
+		width: 50%;
+		height: 28px;
+	}
+
+	.entry.skeleton {
+		grid-column: 1 / span 2;
+		width: 100%;
+		height: 24px;
+	}
+</style>
