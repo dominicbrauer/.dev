@@ -1,0 +1,110 @@
+---
+import BlockIcon from "@/assets/timeline_block.svg";
+import { formatSeconds } from "@/lib/helpers";
+
+type Props = {
+	progress: number | null;
+	duration: number;
+	fetched_at: number;
+};
+
+const { progress, duration, fetched_at } = Astro.props;
+
+const realProgress = (() => {
+	if (!progress) {
+		return null;
+	}
+	const calc = progress + (Date.now() - fetched_at);
+	return calc < duration ? calc : duration;
+})();
+---
+
+<div class="timeline">
+	<div class="bar">
+		{Array.from({length: 32}).map(() => (
+			<BlockIcon class="block" />
+		))}
+	</div>
+	<div class="timecodes rflex">
+		<span data-progress={realProgress} class="progress">-:--</span>
+		<span data-duration={duration} class="duration">
+			{`${new Date(duration).getMinutes()}:${formatSeconds(new Date(duration).getSeconds())}`}
+		</span>
+	</div>
+</div>
+
+<style>
+	.bar {
+		position: relative;
+		width: 100%;
+		height: var(--size-m);
+		border: 1px solid var(--border-muted);
+	}
+
+	.block {
+		position: absolute;
+		height: calc(var(--size-m) - 6px);
+		width: auto;
+		stroke: transparent;
+		fill: var(--primary);
+		top: 2px;
+		opacity: 0;
+		transition: opacity 500ms ease;
+	}
+
+	.timecodes {
+		justify-content: space-between;
+		font-size: .75em;
+		padding: var(--size-3xs);
+	}
+</style>
+
+<script>
+	import { formatSeconds } from "@/lib/helpers";
+
+	const blockElements = document.querySelectorAll<SVGElement>('.block');
+	const progressSpan = document.querySelector<HTMLSpanElement>('.progress');
+	const durationSpan = document.querySelector<HTMLSpanElement>('.duration');
+
+	let progress = new Date(Number(progressSpan?.dataset.progress));
+	let duration = new Date(Number(durationSpan?.dataset.duration));
+
+	window.addEventListener('updateTimeline', (event) => {
+		const e = (event as CustomEvent).detail;
+		progress.setTime((() => {
+			const calc = e.progress + (Date.now() - e.fetched_at);
+			return calc < e.duration ? calc : e.duration;
+		})());
+		duration = new Date(e.duration);
+		durationSpan!.textContent = `${duration.getMinutes()}:${formatSeconds(duration.getSeconds())}`;
+		updateTimeline();
+	});
+
+	blockElements.forEach((block, index) => {
+		block.style.left = `${index * 6 + 4}px`;
+		block.style.filter = `brightness(${0.4 + index * 0.025})`;
+	});
+
+	/**
+	 * Updates the timeline block elements
+	 * and progress counter every second.
+	 */
+	function updateTimeline() {
+		const expectedBlockCount = Math.round(progress.getTime() / duration.getTime() * blockElements.length);
+
+		blockElements.forEach((block, index) => {
+			block.style.opacity = (index <= expectedBlockCount) ? '1' : '0';
+		});
+
+		// skip counting if song ends
+		if (progress.getTime() >= duration.getTime()) {
+			return;
+		}
+
+		progress.setTime(progress.getTime() + 1000);
+		progressSpan!.textContent = `${progress.getMinutes()}:${formatSeconds(progress.getSeconds())}`;
+	}
+
+	updateTimeline();
+	window.setInterval(updateTimeline, 1000);
+</script>
