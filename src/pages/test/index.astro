@@ -1,0 +1,11 @@
+---
+import Main from "@/layouts/Main.astro";
+import { SteamWebAPI } from "@/lib/steam/SteamWebAPI";
+
+const api = new SteamWebAPI();
+const data = await api.requestPlayerOwnedGames();
+---
+
+<Main title="Test page">
+
+</Main>
