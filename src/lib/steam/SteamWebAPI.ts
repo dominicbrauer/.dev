@@ -1,3 +1,6 @@
+/**
+ * Raw response structure for 'GetSchemaForGame'.
+ */
 interface SteamGameSchemaRaw {
 	game: {
 		gameName: string;
@@ -14,89 +17,103 @@ interface SteamGameSchemaRaw {
 	};
 }
 
-export interface SteamGameSchema {
+/**
+ * Represents a game achievement.
+ */
+export interface SteamGameAchievement {
+	id: string;
 	name: string;
-	achievements: {
-		id: string;
-		name: string;
-		hidden: boolean;
-		description: string;
-		icon: URL;
-		icon_gray: URL;
-	}[];
+	hidden: boolean;
+	description: string;
+	icon: string;
+	icon_gray: string;
 }
 
+/**
+ * Represents an achievement per game for a user.
+ */
 export interface SteamPlayerAchievement {
 	apiname: string;
 	achieved: boolean;
 	unlocktime: number;
 }
 
-export interface SteamPlayerOwnedGames {
-	game_count: number;
-	games: {
-		appid: number;
-		name: string;
-		playtime_forever: number;
-	}[];
+/**
+ * Represents a game owned by a user.
+ */
+export interface SteamPlayerOwnedGame {
+	appid: string;
+	name: string;
+	playtime_forever: number;
 }
 
+/**
+ * The Steamworks Web API bundles all endpoints for retrieving game and user data.
+ */
 export class SteamWebAPI {
 
-	constructor() {
-
-	}
-
+	/**
+	 * Gets the string URL for a games header image.
+	 * @param appid the id for the specific game
+	 * @returns the image url
+	 */
 	public getGameCoverURL(appid: string) {
 		return `https://cdn.akamai.steamstatic.com/steam/apps/${appid}/header.jpg`;
 	}
 
-	public async requestGameSchema(appid: string): Promise<SteamGameSchema | undefined> {
+	/**
+	 * Retrieves the achievements for a game.
+	 * @param appid the id for the specific game
+	 * @returns list of achievements
+	 */
+	public async requestGameSchema(appid: string): Promise<SteamGameAchievement[] | undefined> {
 		try {
-			const params = new URLSearchParams([
-				['key', import.meta.env.STEAM_API_KEY],
-				['appid', appid]
-			]);
+			const url = new URL("https://api.steampowered.com/ISteamUserStats/GetSchemaForGame/v2/");
+			url.search = new URLSearchParams({
+				'key': import.meta.env.STEAM_API_KEY,
+				'appid': appid
+			}).toString();
 
-			const response = await fetch("https://api.steampowered.com/ISteamUserStats/GetSchemaForGame/v2/", {
-				method: 'GET',
-				body: params.toString(),
+			const response = await fetch(url, {
+				method: 'GET'
 			});
 
 			if (!response.ok) {
 				return undefined;
 			}
 
-			const rawData = await response.json() as SteamGameSchemaRaw;
-			return {
-				name: rawData.game.gameName,
-				achievements: rawData.game.availableGameStats.achievements.map((achievement) => (
-					{
-						id: achievement.name,
-						name: achievement.displayName,
-						description: achievement.description,
-						hidden: achievement.hidden,
-						icon: new URL(achievement.icon),
-						icon_gray: new URL(achievement.icongray)
-					}
-				))
-			} as SteamGameSchema;
-		} catch {
+			return (await response.json() as SteamGameSchemaRaw).game.availableGameStats.achievements.map((achievement) => (
+				{
+					id: achievement.name,
+					name: achievement.displayName,
+					description: achievement.description,
+					hidden: achievement.hidden,
+					icon: achievement.icon,
+					icon_gray: achievement.icongray
+				} as SteamGameAchievement
+			));
+		} catch (err) {
+			console.log("ERROR: " + err);
 			return undefined;
 		}
 	}
 
+	/**
+	 * Retrieves the mapped achievements for a user per game.
+	 * @param appid the id for the specific game
+	 * @returns list of player achievements
+	 */
 	public async requestPlayerAchievements(appid: string): Promise<SteamPlayerAchievement[] | undefined> {
 		try {
-			const params = new URLSearchParams([
-				['key', import.meta.env.STEAM_API_KEY],
-				['steamid', import.meta.env.STEAM_USER_ID],
-				['appid', appid]
-			]);
+			const url = new URL("https://api.steampowered.com/ISteamUserStats/GetPlayerAchievements/v1/");
+			url.search = new URLSearchParams({
+				'key': import.meta.env.STEAM_API_KEY,
+				'steamid': import.meta.env.STEAM_USER_ID,
+				'appid': appid
+			}).toString();
 
-			const response = await fetch("https://api.steampowered.com/ISteamUserStats/GetPlayerAchievements/v1/", {
-				method: 'GET',
-				body: params.toString(),
+			const response = await fetch(url, {
+				method: 'GET'
 			});
 
 			if (!response.ok) {
@@ -104,38 +121,38 @@ export class SteamWebAPI {
 			}
 
 			return (await response.json()).playerstats.achievements as SteamPlayerAchievement[];
-		} catch {
+		} catch (err) {
+			console.log("ERROR: " + err);
 			return undefined;
 		}
 	}
 
-	public async requestPlayerOwnedGames(): Promise<SteamPlayerOwnedGames | undefined> {
+	/**
+	 * Retrieves all games a player owns.
+	 * @returns list of games
+	 */
+	public async requestPlayerOwnedGames(): Promise<SteamPlayerOwnedGame[] | undefined> {
+
 		try {
-			const params = new URLSearchParams([
-				['key', import.meta.env.STEAM_API_KEY],
-				['steamid', import.meta.env.STEAM_USER_ID],
-				['include_appinfo', 'true'],
-				['include_played_free_games', 'false']
-			]);
+			const url = new URL("https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/");
+			url.search = new URLSearchParams({
+				'key': import.meta.env.STEAM_API_KEY,
+				'steamid': import.meta.env.STEAM_USER_ID,
+				'include_appinfo': 'true',
+				'include_played_free_games': 'false'
+			}).toString();
 
-			//console.log("mogus");
-
-			const response = await fetch("https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/", {
+			const response = await fetch(url, {
 				method: 'GET',
-				body: params.toString(),
 			});
-			console.log("osdnfnds");
-			console.log(response.status);
 
 			if (!response.ok) {
 				return undefined;
 			}
 
-			console.log("mogus");
-			console.log(await response.json());
-
-			return (await response.json()).response as SteamPlayerOwnedGames;
-		} catch {
+			return (await response.json()).response.games as SteamPlayerOwnedGame[];
+		} catch (err) {
+			console.log("ERROR: " + err);
 			return undefined;
 		}
 	}

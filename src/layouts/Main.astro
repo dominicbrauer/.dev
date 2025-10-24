@@ -18,10 +18,25 @@ const { title } = Astro.props;
 			data-site-id="322a6b9d53c0"
 			defer
 			is:inline
-		></script>
+		/>
 	</head>
 	<body>
 		<NavBar />
-		<slot />
+		<main class="cflex">
+			<slot />
+		</main>
 	</body>
 </html>
+
+<style>
+	main {
+		padding-top: calc(var(--navbar-height) + var(--size-xl));
+		padding-bottom: var(--size-xl);
+		max-width: 1200px;
+		width: 100%;
+		position: relative;
+		left: 50%;
+		transform: translateX(-50%);
+		align-items: center;
+	}
+</style>

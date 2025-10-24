@@ -80,7 +80,8 @@ export class SpotifyWebAPI {
 			}
 
 			return await response.json() as SpotifyWebAPICurrentlyPlayingResponse;
-		} catch {
+		} catch (err) {
+			console.log("ERROR: " + err);
 			return undefined;
 		}
 	}
@@ -103,7 +104,8 @@ export class SpotifyWebAPI {
 			}
 
 			return await response.json() as SpotifyWebAPIRecentlyPlayedResponse;
-		} catch {
+		} catch (err) {
+			console.log("ERROR: " + err);
 			return undefined;
 		}
 	}
