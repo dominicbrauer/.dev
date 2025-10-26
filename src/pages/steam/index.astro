@@ -20,7 +20,7 @@ const games = await db.select().from(SteamWebAPIPlayerOwnedGames);
 	</div>
 	<div class="games rflex">
 		{games.sort((a, b) => b.playtime_forever - a.playtime_forever).map((game) => (
-			<GameCard game={game} server:defer />
+			<GameCard game={game} />
 		))}
 	</div>
 </Main>

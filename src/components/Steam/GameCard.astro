@@ -22,7 +22,6 @@ const isComplete = (await db.select().from(SteamWebAPIGameCompleted).where(eq(St
 			alt=`Game portrait header for ${game.name}.`
 			width="600"
 			height="900"
-			server:defer
 		>
 			<div class="skeleton" slot="fallback"></div>
 		</Image>
