@@ -57,9 +57,9 @@ const SteamWebAPIGameCompleted = defineTable({
 
 const SteamWebAPIGameLogoPositioning = defineTable({
 	columns: {
+		appid: column.text({ primaryKey: true }),
 		x: column.number({ optional: true }),
-		y: column.number({ optional: true }),
-		appid: column.text()
+		y: column.number({ optional: true })
 	}
 });
 

@@ -14,8 +14,8 @@ async function handleSteamRequest() {
 	const lastFetchedData = (await db.select().from(SteamWebAPILastFetched))[0];
 	const now = Date.now();
 
-	// skip if the last request was less than an hour ago
-	if (now < lastFetchedData.time + 60000) {
+	// skip if the last request was less than 12 hours ago
+	if (now < lastFetchedData.time + 60000 * 12) {
 		return;
 	}
 
