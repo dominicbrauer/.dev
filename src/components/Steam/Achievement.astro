@@ -1,0 +1,86 @@
+---
+import { Image } from "astro:assets";
+import type { SteamWebAPIAchievement } from "@/lib/steam/SteamWebAPI";
+
+type Props = {
+	achievement: SteamWebAPIAchievement;
+}
+
+const { achievement } = Astro.props;
+---
+
+<div class="achievement card rflex" title={achievement.description}>
+	<div class="image-info-wrapper rflex">
+		<Image
+			src={achievement.achieved ? achievement.icon : achievement.icon_gray}
+			alt="Achievement icon."
+			inferSize={true}
+		/>
+		<div class="info cflex">
+			<span class:list={["name", achievement.achieved && "achieved"]}>{achievement.name}</span>
+			{!!achievement.description && (
+				<p>{achievement.description}</p>
+			)}
+		</div>
+	</div>
+	{achievement.achieved && (
+		<span class="unlock-time">{new Date(achievement.unlock_time * 1000).toISOString()}</span>
+	)}
+</div>
+
+<style>
+	.achievement {
+		padding: var(--size-s);
+		min-width: fit-content;
+		transition: 150ms ease;
+		transition-property: border, background-color;
+		flex-wrap: wrap;
+		gap: var(--size-s);
+		align-items: center;
+	}
+
+	.achievement::target-text() {
+		color: red;
+	}
+
+	.achievement:hover {
+		border: 1px solid var(--primary);
+		background-color: var(--bg-primary);
+	}
+
+	.image-info-wrapper {
+		margin-right: auto;
+	}
+
+	img {
+		aspect-ratio: 1 / 1;
+		max-width: 64px;
+		height: auto;
+		align-self: flex-start;
+	}
+
+	.info {
+		padding: 0 var(--size-s);
+		margin-right: auto;
+		gap: var(--size-3xs);
+		align-self: center;
+	}
+
+	.info p {
+		min-width: 16ch;
+	}
+
+	.name {
+		font-size: 1.25em;
+		font-weight: 500;
+	}
+
+	.name.achieved {
+		color: var(--text);
+	}
+
+	.unlock-time {
+		text-wrap: nowrap;
+		margin-right: var(--size-m);
+	}
+</style>

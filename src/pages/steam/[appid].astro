@@ -1,0 +1,307 @@
+---
+import { Image } from "astro:assets";
+import Main from "@/layouts/Main.astro";
+import { ClockFadingIcon, AwardIcon, TableOfContentsIcon, LayoutGridIcon } from "@lucide/astro/icons";
+import { SteamWebAPI } from "@/lib/steam/SteamWebAPI";
+import { db, eq, SteamWebAPIPlayerOwnedGames, SteamWebAPIAchievements, SteamWebAPIGameLogoPositioning, SteamWebAPIGameCompleted } from "astro:db";
+import Achievement from "@/components/Steam/Achievement.astro";
+import SteamworksLogo from "@/assets/icons/steamworks.svg";
+
+const { appid } = Astro.params;
+
+const game = (await db.select().from(SteamWebAPIPlayerOwnedGames).where(eq(SteamWebAPIPlayerOwnedGames.appid, appid!)))[0];
+if (!game) return Astro.redirect("/404?error=INVALID_APPID");
+const achievements = (await db.select().from(SteamWebAPIAchievements).where(eq(SteamWebAPIAchievements.appid, appid!)));
+
+const steamAPI = new SteamWebAPI();
+
+const isComplete = (await db.select().from(SteamWebAPIGameCompleted).where(eq(SteamWebAPIGameCompleted.appid, game.appid)))[0].complete;
+const achievedCount = achievements.filter((achievement) => achievement.achieved).length;
+const logoPositioning = (await db.select().from(SteamWebAPIGameLogoPositioning).where(eq(SteamWebAPIGameLogoPositioning.appid, game.appid)))[0];
+---
+
+<Main title={game.name}>
+	<div class="hero-wrapper-portrait rflex">
+		<Image
+			class="hero"
+			src={steamAPI.getGameImage(game.appid, "portrait")}
+			alt=`Game portrait header for ${game.name}.`
+			width="600"
+			height="900"
+		/>
+		<div class="game-infos card">
+			<h1 class="game-title">{game.name}</h1>
+			<ClockFadingIcon />
+			<span>{(game.playtime_forever / 60).toFixed(1)} hours</span>
+			<AwardIcon class:list={[isComplete && "award-icon-golden"]} />
+			<span>{`${achievedCount}/${achievements.length}`} achievements</span>
+		</div>
+	</div>
+	<div class="hero-wrapper-wide">
+		<Image
+			class="hero"
+			src={steamAPI.getGameImage(game.appid, "library_hero")}
+			alt=`Game panorama header for ${game.name}.`
+			width="1920"
+			height="620"
+		/>
+		<Image
+			class="logo"
+			src={steamAPI.getGameImage(game.appid, "logo")}
+			alt=`Game logo for ${game.name}.`
+			width="640"
+			height="160"
+			server:defer
+			onerror="this.style.display='none';"
+			style={
+				`top: ${logoPositioning?.y || 50}%;
+				left: ${logoPositioning?.x || 50}%;
+				transform: translate(-${logoPositioning?.x || 50}%, -${logoPositioning?.y || 50}%);`
+			}
+		/>
+		<div class="game-footer rflex">
+			<h1 class="game-title">{game.name}</h1>
+			<div class="game-infos rflex">
+				<div class="info-wrapper playtime rflex">
+					<ClockFadingIcon />
+					<span>{(game.playtime_forever / 60).toFixed(1)} hours</span>
+				</div>
+				<div class="info-wrapper achievements rflex">
+					<AwardIcon class:list={[isComplete && "award-icon-golden"]} />
+					<span>{`${achievedCount}/${achievements.length}`} achievements</span>
+				</div>
+			</div>
+		</div>
+	</div>
+	<section class="achievement-section" data-view="table">
+		<div class="heading rflex">
+			<h2>Achievements</h2>
+			<div class="disclaimer rflex">
+				<span>powered by</span>
+				<a href="https://partner.steamgames.com/">
+					<SteamworksLogo class="steamworks-logo" />
+				</a>
+			</div>
+			<div class="grid-toggle-wrapper" title="Change layout">
+				<TableOfContentsIcon class="table-icon" />
+				<LayoutGridIcon class="grid-icon" />
+			</div>
+		</div>
+		<div class="achievements-wrapper cflex">
+			{achievements.sort((a, b) => Number(b.achieved) - Number(a.achieved)).map((achievement) => (
+				// maybe add a grid view for the achievements with icon-only
+				<Achievement server:defer achievement={achievement} />
+			))}
+		</div>
+	</section>
+</Main>
+
+<style>
+	.hero-wrapper-wide {
+		display: flex;
+		position: relative;
+		max-width: 1200px;
+		box-shadow: 
+			0px -4px 16px -4px rgba(255, 255, 255, .1),
+			inset 0 0 8px 4px rgba(0, 0, 0, .5);
+		margin-bottom: var(--size-xl);
+	}
+
+	.hero-wrapper-portrait {
+		display: none;
+		gap: var(--size-m);
+		margin-bottom: var(--size-xl);
+		align-items: center;
+		align-self: center;
+	}
+
+	.hero-wrapper-portrait .hero {
+		max-width: clamp(128px, 40vw, 320px);
+		height: auto;
+		box-shadow: 
+			0px -4px 16px -4px rgba(255, 255, 255, .1),
+			inset 0 0 8px 4px rgba(0, 0, 0, .5);
+	}
+
+	.hero-wrapper-portrait .game-infos {
+		display: grid;
+		grid-template-columns: 24px 1fr;
+		column-gap: var(--size-xs);
+		row-gap: var(--size-2xs);
+		padding: var(--size-m);
+		min-width: min-content;
+		width: fit-content
+	}
+
+	.hero-wrapper-portrait .game-infos span {
+		align-self: center;
+		/* text-wrap: nowrap; */
+	}
+
+	.hero-wrapper-portrait .game-infos h1 {
+		grid-column: span 2;
+		font-size: clamp(1.5em, 6vw, 2em);
+		margin-bottom: var(--size-xs);
+		color: var(--text);
+	}
+
+	.hero-wrapper-wide .hero {
+		position: relative;
+		z-index: -1;
+		max-width: 100%;
+		height: auto;
+	}
+
+	.hero-wrapper-wide .logo {
+		position: absolute;
+		max-width: clamp(192px, 30vw, 320px);
+		height: auto;
+		z-index: 2;
+	}
+
+	.hero-wrapper-wide .game-footer {
+		position: absolute;
+		bottom: 0;
+		max-width: 100%;
+		width: 100%;
+		background: linear-gradient(0deg, oklch(15% 1% 240 / .5), oklch(21% 1% 240 / .5));
+		border-top: 1px solid var(--border-muted);
+		z-index: 2;
+		-webkit-backdrop-filter: blur(10px);
+		backdrop-filter: blur(10px);
+		padding: var(--size-xs) var(--size-m);
+		justify-content: space-between;
+	}
+
+	.hero-wrapper-wide .game-footer h1 {
+		font-size: 2em;
+		font-weight: 300;
+		color: var(--text);
+	}
+
+	.hero-wrapper-wide .game-footer .game-infos {
+		gap: var(--size-m);
+		align-items: center;
+	}
+
+	.hero-wrapper-wide .game-footer .info-wrapper {
+		gap: var(--size-xs);
+		align-items: center;
+	}
+
+	.hero-wrapper-wide .game-footer .info-wrapper span {
+		text-wrap: nowrap;
+	}
+
+	.hero-wrapper-wide .award-icon-golden {
+		stroke: var(--warning);
+	}
+
+	h2 {
+		color: var(--text);
+	}
+
+	.achievements-wrapper {
+		width: 100%;
+		gap: var(--size-s);
+	}
+
+	.achievement-section[data-view="grid"] .achievements-wrapper {
+		flex-direction: row;
+		flex-wrap: wrap;
+	}
+
+	.achievement-section[data-view="grid"] .achievements-wrapper :global(.achievement) {
+		width: fit-content;
+		flex-grow: 1;
+		p {
+			display: none;
+		}
+		.unlock-time {
+			display: none;
+		}
+	}
+
+	/* .achievement-section[data-view="grid"] .achievements-wrapper :global(.achievement p) {
+		display: none;
+	} */
+
+	/* .achievement-section[data-view="grid"] .achievements-wrapper :global(.achievement .unlock-time) {
+		display: none;
+	} */
+
+	.heading {
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: var(--size-xl);
+		flex-wrap: wrap;
+		gap: var(--size-xs);
+	}
+
+	.disclaimer {
+		align-items: flex-end;
+		gap: var(--size-s);
+	}
+
+	.disclaimer span {
+		text-wrap: nowrap;
+	}
+
+	.disclaimer a {
+		display: flex;
+	}
+
+	.disclaimer a:hover .steamworks-logo {
+		stroke: var(--text);
+		fill: var(--text);
+	}
+
+	.steamworks-logo {
+		height: 36px;
+		width: auto;
+		stroke-width: 0;
+		fill: var(--text-muted);
+		transition: 150ms all ease;
+	}
+
+	.grid-toggle-wrapper {
+		display: flex;
+		padding: var(--size-xs);
+		border-radius: var(--br-soft);
+	}
+
+	.grid-toggle-wrapper:hover {
+		cursor: pointer;
+		background-color: var(--bg-light);
+	}
+
+	.grid-toggle-wrapper .table-icon {
+		display: none;
+	}
+
+	.achievement-section[data-view="grid"] .grid-toggle-wrapper .grid-icon {
+		display: none;
+	}
+
+	.achievement-section[data-view="grid"] .grid-toggle-wrapper .table-icon {
+		display: initial !important;
+	}
+
+	@media (max-width: 700px) {
+		.hero-wrapper-wide {
+			display: none;
+		}
+		.hero-wrapper-portrait {
+			display: flex;
+		}
+	}
+</style>
+
+<script>
+	const achievementSection = document.querySelector<HTMLDivElement>('.achievement-section')!;
+	const gridToggle = document.querySelector<HTMLDivElement>('.grid-toggle-wrapper');
+
+	gridToggle?.addEventListener('click', () => {
+		achievementSection.dataset.view = achievementSection.dataset.view === "table" ? "grid" : "table";
+	})
+</script>

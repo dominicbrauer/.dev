@@ -1,11 +1,17 @@
 ---
-
+import SteamIcon from "@/assets/icons/steam.svg";
 ---
 
 <div class="navbar rflex">
 	<a class="home-link-container rflex" href="/">
 		<span class="home-link-text">Dominic Brauer</span>
 	</a>
+	<div class="internal-links-wrapper">
+		<a class="steam" href="/steam">
+			<SteamIcon />
+		</a>
+	</div>
+	<!-- <div class="external-links-wrapper"></div> -->
 </div>
 
 <style>
@@ -14,14 +20,14 @@
 		left: 50%;
 		transform: translateX(-50%);
 		align-items: center;
-		justify-content: left;
+		justify-content: space-between;
 		position: fixed;
 		max-width: 1200px;
 		width: 100%;
 		height: var(--navbar-height);
 		background-color: var(--bg);
 		padding: 1rem 2rem;
-		box-shadow: 0 1px 8px 1px black;
+		box-shadow: 0 1px 8px 1px rgba(0, 0, 0, .5);
 		z-index: 1000;
 		border-bottom: 1px solid var(--border);
 	}
@@ -63,6 +69,24 @@
 		color: var(--text);
 		font-size: 1.5em;
 		line-height: 1;
+		text-wrap: nowrap;
+	}
+
+	.internal-links-wrapper .steam {
+
+	}
+
+	.internal-links-wrapper .steam svg {
+		width: var(--size-l);
+		height: auto;
+		fill: var(--text-muted);
+		stroke-width: 0;
+		transition: 150ms all ease;
+	}
+
+	.internal-links-wrapper .steam:hover svg {
+		fill: var(--text);
+		stroke: var(--text);
 	}
 
 	@media (min-width: 1200px) {

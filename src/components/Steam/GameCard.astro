@@ -1,0 +1,120 @@
+---
+import { Image } from 'astro:assets';
+import { SteamWebAPI, type SteamWebAPIPlayerOwnedGame } from '@/lib/steam/SteamWebAPI';
+import { db } from 'astro:db';
+import { SteamWebAPIGameCompleted } from 'astro:db';
+import { eq } from 'astro:db';
+
+type Props = {
+	game: SteamWebAPIPlayerOwnedGame
+}
+
+const { game } = Astro.props;
+
+const steamAPI = new SteamWebAPI();
+const isComplete = (await db.select().from(SteamWebAPIGameCompleted).where(eq(SteamWebAPIGameCompleted.appid, game.appid)))[0].complete;
+---
+
+<a class:list={["game-card", isComplete && "complete"]} href=`/steam/${game.appid}`>
+	<div class="game-wrapper">
+		<Image
+			src={steamAPI.getGameImage(game.appid, "portrait")}
+			alt=`Game portrait header for ${game.name}.`
+			width="600"
+			height="900"
+			server:defer
+		>
+			<div class="skeleton" slot="fallback"></div>
+		</Image>
+		<div class="title-card">
+			<h2 class:list={[isComplete && "golden"]}>{game.name}</h2>
+		</div>
+	</div>
+</a>
+
+<style>
+	@import url("@/styles/songDisplayAngle.css");
+
+	.game-card {
+		display: flex;
+		position: relative;
+		max-width: 252px;
+	}
+
+	.game-wrapper {
+		position: relative;
+		display: flex;
+		overflow: hidden;
+		box-shadow: 
+			0px -4px 16px -4px rgba(255, 255, 255, .1),
+			inset 0 0 8px 4px rgba(0, 0, 0, .5);
+	}
+
+	.game-card.complete:before,
+	.game-card.complete:after {
+		content: '';
+		position: absolute;
+		height: 100%;
+		width: 100%;
+		background-image: conic-gradient(from var(--angle), transparent 70%, var(--primary));
+		top: 50%;
+		left: 50%;
+		translate: -50% -50%;
+		z-index: -2;
+		padding: 4px;
+		animation: borderRotate 6s cubic-bezier(0.55, 0.25, 0.45, 0.75) infinite;
+	}
+
+	.game-card.complete:after {
+		filter: blur(.5em);
+	}
+
+	@keyframes borderRotate {
+		0% { --angle: 0deg; }
+		100% { --angle: 360deg; }
+	}
+
+	img {
+		max-width: 100%;
+		height: auto;
+		transition: 250ms all ease;
+		z-index: -1;
+		
+	}
+
+	.title-card {
+		position: absolute;
+		bottom: 0;
+		width: 100%;
+		height: fit-content;
+		transform: translateY(100%);
+		background: linear-gradient(0deg, oklch(15% 1% 240 / .5), oklch(21% 1% 240 / .5));
+		border-top: 1px solid var(--border-muted);
+		-webkit-backdrop-filter: blur(10px);
+		backdrop-filter: blur(10px);
+		padding: var(--size-s) var(--size-m);
+		transition: 250ms all ease;
+		z-index: 3;
+	}
+
+	h2 {
+		color: var(--text);
+		font-weight: 300;
+	}
+
+	h2.golden {
+		/* background: linear-gradient(90deg, var(--warning), var(--text));
+		-webkit-background-clip: text;
+		background-clip: text;
+		-webkit-text-fill-color: transparent; */
+		color: var(--warning);
+	}
+
+	.game-card:hover img {
+		filter: blur(2px);
+	}
+
+	.game-card:hover .title-card {
+		transform: translateY(0);
+	}
+</style>

@@ -14,5 +14,11 @@ export default defineConfig({
       mode: 'standalone'
 	}),
 
+  image: {
+    domains: [
+      "shared.fastly.steamstatic.com/"
+    ]
+  },
+
   integrations: [db()]
 });

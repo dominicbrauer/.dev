@@ -1,16 +1,18 @@
 ---
+import Footer from "@/components/Footer.astro";
 import NavBar from "@/components/NavBar.astro";
 import "@/styles/global.css";
 import "@/styles/sizing.css";
 
 const { title } = Astro.props;
+const urlPath = Astro.url.pathname;
 ---
 
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.png" />
-		<meta name="viewport" content="width=device-width" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
 		<script
@@ -20,23 +22,32 @@ const { title } = Astro.props;
 			is:inline
 		/>
 	</head>
-	<body>
+	<body class="cflex">
 		<NavBar />
 		<main class="cflex">
 			<slot />
 		</main>
+		<Footer />
 	</body>
 </html>
 
 <style>
+	body {
+		min-height: 100dvh;
+		background-color: var(--bg-dark);
+	}
+
 	main {
-		padding-top: calc(var(--navbar-height) + var(--size-xl));
-		padding-bottom: var(--size-xl);
+		padding:
+			calc(var(--navbar-height) + var(--size-xl))
+			var(--size-l)
+			var(--size-xl)
+			var(--size-l);
 		max-width: 1200px;
 		width: 100%;
 		position: relative;
 		left: 50%;
 		transform: translateX(-50%);
-		align-items: center;
+		flex-grow: 1;
 	}
 </style>
