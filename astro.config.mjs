@@ -16,7 +16,8 @@ export default defineConfig({
 
   image: {
     domains: [
-      "shared.fastly.steamstatic.com/"
+      "shared.fastly.steamstatic.com/",
+      "cdn.akamai.steamstatic.com"
     ]
   },
 
