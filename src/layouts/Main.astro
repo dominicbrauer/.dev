@@ -5,6 +5,10 @@ import ProfilePicture from "@/assets/images/profile.webp";
 import "@/styles/global.css";
 import "@/styles/sizing.css";
 
+type Props = {
+	title: string; // contributed by @louisescher #1234
+}
+
 const { title } = Astro.props;
 const urlPath = Astro.url.pathname;
 ---
@@ -15,7 +19,7 @@ const urlPath = Astro.url.pathname;
 		<link rel="icon" type="image/svg+xml" href="/favicon.png" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta name="generator" content={Astro.generator} />
-		<meta property="og:title" content="dotdev">
+		<meta property="og:title" content={title}>
 		<meta property="og:description" content="My personal portfolio website.">
 		<meta property="og:image" content={ProfilePicture.src}>
 		<meta property="og:url" content="https://dominicbrauer.dev">
