@@ -1,0 +1,29 @@
+---
+const urlPath = Astro.url.pathname;
+---
+
+<div class="footer rflex">
+	{urlPath.startsWith("/steam") && (
+		<div class="valve-disclaimer">
+			<p>
+				This page uses content from the Steamworks Web API.<br />All rights reserved.<br /><br />
+				© 2025 Valve Corporation. Steam and the Steam logo are trademarks and/or registered trademarks of Valve Corporation in the U.S. and/or other countries.
+			</p>
+		</div>
+	)}
+</div>
+
+<style>
+	.footer {
+		width: 100%;
+		background-color: var(--bg);
+		border-top: 1px solid var(--border);
+		padding: var(--size-l) var(--size-xl);
+		box-shadow: 0 -1px 8px 1px rgba(0, 0, 0, .5);
+		justify-content: center;
+	}
+
+	p {
+		max-width: 60ch;
+	}
+</style>

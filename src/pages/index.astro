@@ -6,34 +6,21 @@ import SongDisplaySkeleton from "@/components/SongDisplay/SongDisplaySkeleton.as
 ---
 
 <Main title="Dominic Brauer">
-	<main class="cflex">
-		<!--<section class="hero">
-			<h1>Dominic Brauer</h1>
-		</section>-->
-		<section class="grid-area cflex">
-			<SongDisplay server:defer>
-				<SongDisplaySkeleton slot="fallback" />
-			</SongDisplay>
-			<div class="webrings rflex card">
-				<WebringBadge site="dominicbrauer.dev" ring="built-with-astro" />
-				<WebringBadge site="dominicbrauer.dev" ring="friends-of-houston" animated />
-			</div>
-		</section>
-	</main>
+	<!--<section class="hero">
+		<h1>Dominic Brauer</h1>
+	</section>-->
+	<section class="grid-area cflex">
+		<SongDisplay server:defer>
+			<SongDisplaySkeleton slot="fallback" />
+		</SongDisplay>
+		<div class="webrings rflex card">
+			<WebringBadge site="dominicbrauer.dev" ring="built-with-astro" />
+			<WebringBadge site="dominicbrauer.dev" ring="friends-of-houston" animated />
+		</div>
+	</section>
 </Main>
 
 <style>
-	main {
-		padding-top: calc(var(--navbar-height) + var(--size-xl));
-		padding-bottom: var(--size-xl);
-		max-width: 1200px;
-		width: 100%;
-		position: relative;
-		left: 50%;
-		transform: translateX(-50%);
-		align-items: center;
-	}
-
 	.hero {
 		display: flex;
 		align-items: center;
@@ -48,7 +35,9 @@ import SongDisplaySkeleton from "@/components/SongDisplay/SongDisplaySkeleton.as
 	}
 
 	.webrings {
+		padding: var(--size-s);
 		gap: var(--size-m);
 		max-width: fit-content;
+		align-items: center;
 	}
 </style>

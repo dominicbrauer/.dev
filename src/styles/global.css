@@ -18,6 +18,8 @@
 	--primary: oklch(45% 50% 30);
 	--secondary: ;
 
+	--bg-primary: oklch(45% 50% 30 / 0.1);
+
 	--text: oklch(95% 1% 240);
 	--text-muted: oklch(75% 1% 240);
 
@@ -47,11 +49,6 @@
 	margin: 0;
 	padding: 0;
 	box-sizing: border-box;
-	user-select: none;
-}
-
-body {
-	background-color: var(--bg-dark);
 }
 
 svg {
@@ -78,7 +75,6 @@ a:hover {
 
 .card {
 	border: 1px solid var(--border);
-	padding: var(--size-l);
 	background-color: var(--bg);
 	height: fit-content;
 }
@@ -86,6 +82,8 @@ a:hover {
 .skeleton {
 	border-radius: var(--br-hard);
 	animation: skeleton-pulse 1s linear infinite alternate;
+	width: 100%;
+	height: 100%;
 }
 
 @keyframes skeleton-pulse {

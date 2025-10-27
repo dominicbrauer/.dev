@@ -28,10 +28,10 @@ export class SpotifyAccessToken {
 	 */
 	public async refreshAccessToken() {
 		try {
-			const params = new URLSearchParams([
-				['grant_type', 'refresh_token'],
-				['refresh_token', import.meta.env.REFRESH_TOKEN]
-			]);
+			const params = new URLSearchParams({
+				'grant_type': 'refresh_token',
+				'refresh_token': import.meta.env.REFRESH_TOKEN
+		});
 
 			const response = await fetch("https://accounts.spotify.com/api/token", {
 				method: 'POST',
@@ -44,8 +44,8 @@ export class SpotifyAccessToken {
 
 			const data = await response.json() as SpotifyAccessTokenResponse;
 			this.value = data.access_token;
-		} catch {
-			throw new WebTransportError("Could not refresh the Spotify Web API access token!");
+		} catch (err) {
+			console.log("ERROR: " + err);
 		}
 	}
 

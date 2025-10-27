@@ -3,6 +3,7 @@
 .song-display {
 	width: var(--cardwidth-small);
 	gap: var(--size-s);
+	padding: var(--size-l);
 }
 
 .song-information-wrapper {

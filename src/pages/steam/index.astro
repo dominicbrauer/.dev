@@ -1,0 +1,72 @@
+---
+import GameCard from "@/components/Steam/GameCard.astro";
+import Main from "@/layouts/Main.astro";
+import { SteamWebAPIPlayerOwnedGames } from "astro:db";
+import { db } from "astro:db";
+import SteamworksLogo from "@/assets/icons/steamworks.svg";
+
+const games = await db.select().from(SteamWebAPIPlayerOwnedGames);
+---
+
+<Main title="My Steam Games">
+	<div class="heading rflex">
+		<h1>My Steam Games</h1>
+		<div class="disclaimer rflex">
+			<span>powered by</span>
+			<a href="https://partner.steamgames.com/" target="_blank">
+				<SteamworksLogo class="steamworks-logo" />
+			</a>
+		</div>
+	</div>
+	<div class="games rflex">
+		{games.sort((a, b) => b.playtime_forever - a.playtime_forever).map((game) => (
+			<GameCard game={game} />
+		))}
+	</div>
+</Main>
+
+<style>
+	h1 {
+		color: var(--text);
+	}
+
+	.games {
+		flex-wrap: wrap;
+		gap: var(--size-xl);
+		justify-content: center;
+	}
+
+	.heading {
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: var(--size-xl);
+		flex-wrap: wrap;
+		gap: var(--size-xs);
+	}
+
+	.disclaimer {
+		align-items: flex-end;
+		gap: var(--size-s);
+	}
+
+	.disclaimer span {
+		text-wrap: nowrap;
+	}
+
+	.disclaimer a {
+		display: flex;
+	}
+
+	.disclaimer a:hover .steamworks-logo {
+		stroke: var(--text);
+		fill: var(--text);
+	}
+
+	.steamworks-logo {
+		height: 36px;
+		width: auto;
+		stroke-width: 0;
+		fill: var(--text-muted);
+		transition: 150ms all ease;
+	}
+</style>
