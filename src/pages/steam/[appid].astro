@@ -82,7 +82,8 @@ const logoPositioning = (await db.select().from(SteamWebAPIGameLogoPositioning).
 					<SteamworksLogo class="steamworks-logo" />
 				</a>
 			</div>
-			<div class="grid-toggle-wrapper" title="Change layout">
+			<div class="grid-toggle-wrapper rflex" title="Change layout">
+				<span>Layout</span>
 				<TableOfContentsIcon class="table-icon" />
 				<LayoutGridIcon class="grid-icon" />
 			</div>
@@ -265,9 +266,11 @@ const logoPositioning = (await db.select().from(SteamWebAPIGameLogoPositioning).
 	}
 
 	.grid-toggle-wrapper {
-		display: flex;
+		gap: var(--size-s);
 		padding: var(--size-xs);
 		border-radius: var(--br-soft);
+		align-items: center;
+		border: 1px solid var(--border-muted);
 	}
 
 	.grid-toggle-wrapper:hover {
