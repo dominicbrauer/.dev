@@ -53,7 +53,9 @@ export interface SteamWebAPIPlayerOwnedGame {
 	playtime_forever: number;
 }
 
-const imageTypes = new Map<string, string>([
+type ImageType = 'header' | 'library_hero' | 'logo' | 'portrait';
+
+const imageTypes = new Map<ImageType, string>([
 	["header", "header.jpg"],
 	["library_hero", "library_hero.jpg"],
 	["logo", "logo.png"],
@@ -71,7 +73,7 @@ export class SteamWebAPI {
 	 * @param type type of the image (header, library_hero, logo)
 	 * @returns url string to that image
 	 */
-	public getGameImage(appid: string, type: string) {
+	public getGameImage(appid: string, type: ImageType) {
 		return `https://cdn.akamai.steamstatic.com/steam/apps/${appid}/${imageTypes.get(type)}`;
 	}
 

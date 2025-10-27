@@ -89,10 +89,14 @@ const logoPositioning = (await db.select().from(SteamWebAPIGameLogoPositioning).
 			</div>
 		</div>
 		<div class="achievements-wrapper cflex">
-			{achievements.sort((a, b) => Number(b.achieved) - Number(a.achieved)).map((achievement) => (
-				// maybe add a grid view for the achievements with icon-only
-				<Achievement server:defer achievement={achievement} />
-			))}
+			{achievements.length > 0 ? (
+				achievements.sort((a, b) => Number(b.achieved) - Number(a.achieved)).map((achievement) => (
+					// maybe add a grid view for the achievements with icon-only
+					<Achievement achievement={achievement} />
+				))
+			) : (
+				<span>This game has no achievements.</span>
+			)}
 		</div>
 	</section>
 </Main>
