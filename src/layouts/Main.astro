@@ -1,6 +1,7 @@
 ---
 import Footer from "@/components/Footer.astro";
 import NavBar from "@/components/NavBar.astro";
+import ProfilePicture from "@/assets/images/profile.webp";
 import "@/styles/global.css";
 import "@/styles/sizing.css";
 
@@ -14,6 +15,10 @@ const urlPath = Astro.url.pathname;
 		<link rel="icon" type="image/svg+xml" href="/favicon.png" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta name="generator" content={Astro.generator} />
+		<meta property="og:title" content="dotdev">
+		<meta property="og:description" content="My personal portfolio website.">
+		<meta property="og:image" content={ProfilePicture.src}>
+		<meta property="og:url" content="https://dominicbrauer.dev">
 		<title>{title}</title>
 		<script
 			src="https://rybbit.dominicbrauer.dev/api/script.js"
