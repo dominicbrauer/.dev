@@ -4,6 +4,8 @@ import { SteamWebAPI, type SteamWebAPIPlayerOwnedGame } from '@/lib/steam/SteamW
 import { db } from 'astro:db';
 import { SteamWebAPIGameCompleted } from 'astro:db';
 import { eq } from 'astro:db';
+import PortraitPlaceholder from "@/assets/images/portrait-placeholder.png";
+import { getImage } from 'astro:assets';
 
 type Props = {
 	game: SteamWebAPIPlayerOwnedGame
@@ -13,18 +15,20 @@ const { game } = Astro.props;
 
 const steamAPI = new SteamWebAPI();
 const isComplete = (await db.select().from(SteamWebAPIGameCompleted).where(eq(SteamWebAPIGameCompleted.appid, game.appid)))[0].complete;
+
+const portraitPlaceholder = await getImage({src: PortraitPlaceholder, format: "webp"});
 ---
 
 <a class:list={["game-card", isComplete && "complete"]} href=`/steam/${game.appid}`>
 	<div class="game-wrapper">
 		<Image
+			class="skeleton-animation"
 			src={steamAPI.getGameImage(game.appid, "portrait")}
 			alt=`Game portrait header for ${game.name}.`
 			width="600"
 			height="900"
-		>
-			<div class="skeleton" slot="fallback"></div>
-		</Image>
+			onerror=`this.src="${portraitPlaceholder.src}";`
+		/>
 		<div class="title-card">
 			<h2 class:list={[isComplete && "golden"]}>{game.name}</h2>
 		</div>
@@ -78,7 +82,6 @@ const isComplete = (await db.select().from(SteamWebAPIGameCompleted).where(eq(St
 		height: auto;
 		transition: 250ms all ease;
 		z-index: -1;
-		
 	}
 
 	.title-card {

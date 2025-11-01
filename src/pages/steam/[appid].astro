@@ -1,11 +1,12 @@
 ---
-import { Image } from "astro:assets";
+import { getImage, Image } from "astro:assets";
 import Main from "@/layouts/Main.astro";
 import { ClockFadingIcon, AwardIcon, TableOfContentsIcon, LayoutGridIcon } from "@lucide/astro/icons";
 import { SteamWebAPI } from "@/lib/steam/SteamWebAPI";
 import { db, eq, SteamWebAPIPlayerOwnedGames, SteamWebAPIAchievements, SteamWebAPIGameLogoPositioning, SteamWebAPIGameCompleted } from "astro:db";
 import Achievement from "@/components/Steam/Achievement.astro";
 import SteamworksLogo from "@/assets/icons/steamworks.svg";
+import HeaderPlaceholder from "@/assets/images/header-placeholder.png";
 
 const { appid } = Astro.params;
 
@@ -18,6 +19,8 @@ const steamAPI = new SteamWebAPI();
 const isComplete = (await db.select().from(SteamWebAPIGameCompleted).where(eq(SteamWebAPIGameCompleted.appid, game.appid)))[0].complete;
 const achievedCount = achievements.filter((achievement) => achievement.achieved).length;
 const logoPositioning = (await db.select().from(SteamWebAPIGameLogoPositioning).where(eq(SteamWebAPIGameLogoPositioning.appid, game.appid)))[0];
+
+const headerPlaceholder = await getImage({src: HeaderPlaceholder, format: "webp"});
 ---
 
 <Main title={game.name}>
@@ -44,6 +47,7 @@ const logoPositioning = (await db.select().from(SteamWebAPIGameLogoPositioning).
 			alt=`Game panorama header for ${game.name}.`
 			width="1920"
 			height="620"
+			onerror=`this.src="${headerPlaceholder.src}";`
 		/>
 		<Image
 			class="logo"

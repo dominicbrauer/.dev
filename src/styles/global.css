@@ -86,6 +86,10 @@ a:hover {
 	height: 100%;
 }
 
+.skeleton-animation {
+	animation: skeleton-pulse 1s linear infinite alternate;
+}
+
 @keyframes skeleton-pulse {
 	from {
 		background-color: var(--bg-skeleton1);
