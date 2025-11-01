@@ -1,11 +1,11 @@
 ---
-import { Image } from 'astro:assets';
+import { getImage, Image } from 'astro:assets';
 import { SteamWebAPI, type SteamWebAPIPlayerOwnedGame } from '@/lib/steam/SteamWebAPI';
 import { db } from 'astro:db';
 import { SteamWebAPIGameCompleted } from 'astro:db';
 import { eq } from 'astro:db';
 import PortraitPlaceholder from "@/assets/images/portrait-placeholder.png";
-import { getImage } from 'astro:assets';
+import { AwardIcon } from "@lucide/astro/icons";
 
 type Props = {
 	game: SteamWebAPIPlayerOwnedGame
@@ -19,7 +19,7 @@ const isComplete = (await db.select().from(SteamWebAPIGameCompleted).where(eq(St
 const portraitPlaceholder = await getImage({src: PortraitPlaceholder, format: "webp"});
 ---
 
-<a class:list={["game-card", isComplete && "complete"]} href=`/steam/${game.appid}`>
+<a class="game-card" href=`/steam/${game.appid}`>
 	<div class="game-wrapper">
 		<Image
 			class="skeleton-animation"
@@ -33,15 +33,18 @@ const portraitPlaceholder = await getImage({src: PortraitPlaceholder, format: "w
 			<h2 class:list={[isComplete && "golden"]}>{game.name}</h2>
 		</div>
 	</div>
+	{ isComplete && (
+		<div class="badge">
+			<AwardIcon />
+		</div>
+	)}
 </a>
 
 <style>
-	@import url("@/styles/songDisplayAngle.css");
-
 	.game-card {
 		display: flex;
 		position: relative;
-		max-width: 252px;
+		max-width: 256px;
 	}
 
 	.game-wrapper {
@@ -51,30 +54,6 @@ const portraitPlaceholder = await getImage({src: PortraitPlaceholder, format: "w
 		box-shadow: 
 			0px -4px 16px -4px rgba(255, 255, 255, .1),
 			inset 0 0 8px 4px rgba(0, 0, 0, .5);
-	}
-
-	.game-card.complete:before,
-	.game-card.complete:after {
-		content: '';
-		position: absolute;
-		height: 100%;
-		width: 100%;
-		background-image: conic-gradient(from var(--angle), transparent 70%, var(--primary));
-		top: 50%;
-		left: 50%;
-		translate: -50% -50%;
-		z-index: -2;
-		padding: 4px;
-		animation: borderRotate 6s cubic-bezier(0.55, 0.25, 0.45, 0.75) infinite;
-	}
-
-	.game-card.complete:after {
-		filter: blur(.5em);
-	}
-
-	@keyframes borderRotate {
-		0% { --angle: 0deg; }
-		100% { --angle: 360deg; }
 	}
 
 	img {
@@ -105,10 +84,6 @@ const portraitPlaceholder = await getImage({src: PortraitPlaceholder, format: "w
 	}
 
 	h2.golden {
-		/* background: linear-gradient(90deg, var(--warning), var(--text));
-		-webkit-background-clip: text;
-		background-clip: text;
-		-webkit-text-fill-color: transparent; */
 		color: var(--warning);
 	}
 
@@ -118,5 +93,22 @@ const portraitPlaceholder = await getImage({src: PortraitPlaceholder, format: "w
 
 	.game-card:hover .title-card {
 		transform: translateY(0);
+	}
+
+	.badge {
+		display: flex;
+		position: absolute;
+		top: 0;
+		right: var(--size-s);
+		background-color: var(--bg-light);
+		border-bottom-left-radius: 100%;
+		border-bottom-right-radius: 100%;
+		padding: var(--size-xs);
+		box-shadow: 0px 2px 4px 2px rgba(0, 0, 0, 0.5);
+	}
+
+	.badge svg {
+		stroke: var(--warning);
+		margin-bottom: 2px; /* spacing correction */
 	}
 </style>

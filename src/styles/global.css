@@ -51,6 +51,10 @@
 	box-sizing: border-box;
 }
 
+svg, img {
+	user-select: none;
+}
+
 svg {
 	stroke: var(--text-muted);
 }

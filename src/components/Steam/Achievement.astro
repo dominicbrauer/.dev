@@ -32,15 +32,11 @@ const { achievement } = Astro.props;
 	.achievement {
 		padding: var(--size-s);
 		min-width: fit-content;
-		transition: 150ms ease;
+		transition: 100ms all ease;
 		transition-property: border, background-color;
 		flex-wrap: wrap;
 		gap: var(--size-s);
 		align-items: center;
-	}
-
-	.achievement::target-text() {
-		color: red;
 	}
 
 	.achievement:hover {
