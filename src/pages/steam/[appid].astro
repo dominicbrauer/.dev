@@ -16,7 +16,7 @@ const achievements = (await db.select().from(SteamWebAPIAchievements).where(eq(S
 
 const steamAPI = new SteamWebAPI();
 
-const isComplete = (await db.select().from(SteamWebAPIGameCompleted).where(eq(SteamWebAPIGameCompleted.appid, game.appid)))[0].complete;
+const isComplete = achievements.every((achievement) => achievement.achieved);
 const achievedCount = achievements.filter((achievement) => achievement.achieved).length;
 const logoPositioning = (await db.select().from(SteamWebAPIGameLogoPositioning).where(eq(SteamWebAPIGameLogoPositioning.appid, game.appid)))[0];
 
