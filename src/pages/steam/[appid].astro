@@ -12,8 +12,9 @@ const { appid } = Astro.params;
 
 const game = (await db.select().from(SteamWebAPIPlayerOwnedGames).where(eq(SteamWebAPIPlayerOwnedGames.appid, appid!)))[0];
 if (!game) return Astro.redirect("/404?error=INVALID_APPID");
+console.log(appid, game);
 const achievements = (await db.select().from(SteamWebAPIAchievements).where(eq(SteamWebAPIAchievements.appid, appid!)));
-
+console.log(achievements.length);
 const steamAPI = new SteamWebAPI();
 
 const isComplete = (await db.select().from(SteamWebAPIGameCompleted).where(eq(SteamWebAPIGameCompleted.appid, game.appid)))[0].complete;
