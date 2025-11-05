@@ -16,11 +16,12 @@ const achievements = (await db.select().from(SteamWebAPIAchievements).where(eq(S
 
 const steamAPI = new SteamWebAPI();
 
-const isComplete = achievements.every((achievement) => achievement.achieved);
+const isComplete = (await db.select().from(SteamWebAPIGameCompleted).where(eq(SteamWebAPIGameCompleted.appid, game.appid)))[0].complete;
 const achievedCount = achievements.filter((achievement) => achievement.achieved).length;
 const logoPositioning = (await db.select().from(SteamWebAPIGameLogoPositioning).where(eq(SteamWebAPIGameLogoPositioning.appid, game.appid)))[0];
 
 const headerPlaceholder = await getImage({src: HeaderPlaceholder, format: "webp"});
+console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 ---
 
 <Main title={game.name}>
@@ -32,6 +33,7 @@ const headerPlaceholder = await getImage({src: HeaderPlaceholder, format: "webp"
 				alt=`Game panorama header for ${game.name}.`
 				width="1920"
 				height="620"
+				loading="lazy"
 				onerror=`this.src="${headerPlaceholder.src}";`
 			/>
 			<Image
@@ -40,7 +42,7 @@ const headerPlaceholder = await getImage({src: HeaderPlaceholder, format: "webp"
 				alt=`Game logo for ${game.name}.`
 				width="640"
 				height="160"
-				server:defer
+				loading="lazy"
 				onerror="this.style.display='none';"
 				style={
 					`top: ${logoPositioning?.y || 50}%;

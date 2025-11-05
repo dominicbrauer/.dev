@@ -25,6 +25,7 @@ const portraitPlaceholder = await getImage({src: PortraitPlaceholder, format: "w
 			class="skeleton-animation"
 			src={steamAPI.getGameImage(game.appid, "portrait")}
 			alt=`Game portrait header for ${game.name}.`
+			loading="lazy"
 			width="600"
 			height="900"
 			onerror=`this.src="${portraitPlaceholder.src}";`
