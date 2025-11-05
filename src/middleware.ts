@@ -15,7 +15,7 @@ async function handleSteamRequest() {
 	const now = Date.now();
 
 	// skip if the last request was less than 12 hours ago
-	if (now < lastFetchedData.time + 60000 * 12) {
+	if (now < lastFetchedData.time + 1000 * 60 * 60 * 12) {
 		return;
 	}
 
@@ -30,6 +30,7 @@ async function handleSteamRequest() {
 	const achievementQueries: any[] = [];
 	const gameCompleteQueries: any[] = [];
 	const achievementPromises: Promise<SteamWebAPIAchievement[] | undefined>[] = [];
+	const achievements = await db.
 
 	for (const game of games) {
 		gameQueries.push(
