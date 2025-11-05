@@ -30,7 +30,7 @@ async function handleSteamRequest() {
 	const achievementQueries: any[] = [];
 	const gameCompleteQueries: any[] = [];
 	const achievementPromises: Promise<SteamWebAPIAchievement[] | undefined>[] = [];
-	const achievements = await db.
+	//const achievements = await db.
 
 	for (const game of games) {
 		gameQueries.push(
