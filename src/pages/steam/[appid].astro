@@ -21,7 +21,6 @@ const achievedCount = achievements.filter((achievement) => achievement.achieved)
 const logoPositioning = (await db.select().from(SteamWebAPIGameLogoPositioning).where(eq(SteamWebAPIGameLogoPositioning.appid, game.appid)))[0];
 
 const headerPlaceholder = await getImage({src: HeaderPlaceholder, format: "webp"});
-console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 ---
 
 <Main title={game.name}>
