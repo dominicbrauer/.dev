@@ -39,13 +39,7 @@ const SteamWebAPIAchievements = defineTable({
 		achieved: column.boolean(),
 		unlock_time: column.number(),
 		appid: column.text()
-	},
-	foreignKeys: [
-		{
-			columns: "appid",
-			references: () => SteamWebAPIPlayerOwnedGames.columns.appid
-		}
-	]
+	}
 });
 
 const SteamWebAPIGameCompleted = defineTable({
