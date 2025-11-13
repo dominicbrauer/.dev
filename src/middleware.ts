@@ -1,5 +1,5 @@
 import { SteamWebAPI, type SteamWebAPIAchievement } from "@/lib/steam/SteamWebAPI";
-import { db, SteamWebAPIAchievements, SteamWebAPILastFetched, SteamWebAPIPlayerOwnedGames, SteamWebAPIGameCompleted } from "astro:db";
+import { db, SteamWebAPIAchievements, SteamWebAPILastFetched, SteamWebAPIPlayerOwnedGames, SteamWebAPIGameCompleted, eq } from "astro:db";
 import { defineMiddleware } from "astro:middleware";
 
 export const onRequest = defineMiddleware(async (context, next) => {
@@ -15,11 +15,18 @@ async function handleSteamRequest() {
 	const now = Date.now();
 
 	// skip if the last request was less than 12 hours ago
-	if (now < lastFetchedData.time + 60000 * 12) {
+	if (now < lastFetchedData.time + 1000 * 60 * 60 * 12) {
 		return;
 	}
 
-	await db.update(SteamWebAPILastFetched).set({ time: now });
+	console.log("LOAD!");
+
+	const [_, knownGames, knownAchievements, knownGameCompletions] = await db.batch([
+ 		db.update(SteamWebAPILastFetched).set({ time: now }),
+		db.select().from(SteamWebAPIPlayerOwnedGames),
+		db.select().from(SteamWebAPIAchievements),
+		db.select().from(SteamWebAPIGameCompleted)
+	]);
 	const steamAPI = new SteamWebAPI();
 
 	const games = await steamAPI.requestPlayerOwnedGames() || [];
@@ -30,14 +37,18 @@ async function handleSteamRequest() {
 	const achievementPromises: Promise<SteamWebAPIAchievement[] | undefined>[] = [];
 
 	for (const game of games) {
-		gameQueries.push(
-			db.insert(SteamWebAPIPlayerOwnedGames).values(game).onConflictDoUpdate({
-				target: SteamWebAPIPlayerOwnedGames.appid,
-				set: {
-					...game
-				}
-			})
-		);
+		if (!knownGames.find((knownGame) => knownGame.appid === game.appid)) {
+			gameQueries.push(
+				db.insert(SteamWebAPIPlayerOwnedGames).values(game)
+			);
+		} else {
+			gameQueries.push(
+				db.update(SteamWebAPIPlayerOwnedGames).set({
+					...game,
+					appid: undefined
+				}).where(eq(SteamWebAPIPlayerOwnedGames.appid, game.appid))
+			);
+		}
 
 		achievementPromises.push(steamAPI.requestGameAchievements(game.appid));
 	}
@@ -45,35 +56,37 @@ async function handleSteamRequest() {
 	const resolvedAchievements = (await Promise.all(achievementPromises)).filter((value) => !!value).flat();
 
 	for (const achievement of resolvedAchievements) {
-		achievementQueries.push(
-			db.insert(SteamWebAPIAchievements).values(achievement).onConflictDoUpdate({
-				target: SteamWebAPIAchievements.id,
-				set: {
-					...achievement
-				}
-			})
-		);
+		if (!knownAchievements.find((knownAchievement) => knownAchievement.id === achievement.id)) {
+			achievementQueries.push(
+				db.insert(SteamWebAPIAchievements).values(achievement)
+			);
+		} else {
+			achievementQueries.push(
+				db.update(SteamWebAPIAchievements).set({
+					...achievement,
+					id: undefined
+				}).where(eq(SteamWebAPIAchievements.id, achievement.id))
+			);
+		}
 	}
 
 	for (const game of games) {
 		const achievements = resolvedAchievements.filter((achievement) => achievement.appid === game.appid);
-		let isComplete = achievements.length > 0;
-		achievements.forEach((achievement) => {
-			if (!achievement.achieved) {
-				isComplete = false;
-			}
-		});
-		gameCompleteQueries.push(
-			db.insert(SteamWebAPIGameCompleted).values({
-				appid: game.appid,
-				complete: isComplete
-			}).onConflictDoUpdate({
-				target: SteamWebAPIGameCompleted.appid,
-				set: {
+		const isComplete = achievements.length > 0 && achievements.every((achievement) => achievement.achieved);
+		if (!knownGameCompletions.find((knownGameCompletion) => knownGameCompletion.appid === game.appid)) {
+			gameCompleteQueries.push(
+				db.insert(SteamWebAPIGameCompleted).values({
+					appid: game.appid,
 					complete: isComplete
-				}
-			})
-		);
+				})
+			);
+		} else {
+			gameCompleteQueries.push(
+				db.update(SteamWebAPIGameCompleted).set({
+					complete: isComplete
+				}).where(eq(SteamWebAPIGameCompleted.appid, game.appid))
+			);
+		}
 	}
 
 	await db.batch([

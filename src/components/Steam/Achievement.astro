@@ -14,7 +14,9 @@ const { achievement } = Astro.props;
 		<Image
 			src={achievement.achieved ? achievement.icon : achievement.icon_gray}
 			alt="Achievement icon."
-			inferSize={true}
+			loading="lazy"
+			width="64"
+			height="64"
 		/>
 		<div class="info cflex">
 			<span class:list={["name", achievement.achieved && "achieved"]}>{achievement.name}</span>

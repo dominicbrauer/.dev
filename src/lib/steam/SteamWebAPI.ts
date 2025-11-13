@@ -125,6 +125,7 @@ export class SteamWebAPI {
 				} as SteamWebAPIAchievement
 			));
 		} catch (err) {
+			console.log("this broken:" + appid);
 			console.log("ERROR: " + err);
 			return undefined;
 		}
