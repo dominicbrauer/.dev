@@ -3,6 +3,10 @@ import Main from "@/layouts/Main.astro";
 import WebringBadge from "astro-webrings/badge";
 import SongDisplay from "@/components/SongDisplay/SongDisplay.astro";
 import SongDisplaySkeleton from "@/components/SongDisplay/SongDisplaySkeleton.astro";
+
+import { mogus } from "@/lib/cache.ts";
+
+console.log(mogus.get("mogus"));
 ---
 
 <Main title="Dominic Brauer">
