@@ -3,6 +3,11 @@ import type { AstroIntegration } from 'astro';
 import node from '@astrojs/node';
 import db from '@astrojs/db';
 
+/**
+ * Takes care of excluded pages. In development,
+ * pages with a '_'-prefix are not excluded.
+ * @returns the integration
+ */
 function devRoutes(): AstroIntegration {
   return {
     name: 'dev-routes',
