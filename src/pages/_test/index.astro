@@ -1,0 +1,13 @@
+---
+import Main from "@/layouts/Main.astro";
+
+if (!import.meta.env.DEV) {
+	return new Response(null, {
+		status: 404
+	});
+}
+---
+
+<Main title="Test page One">
+	<h1>Test Page One</h1>
+</Main>
