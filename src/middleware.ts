@@ -11,15 +11,25 @@ export const onRequest = defineMiddleware(async (context, next) => {
 });
 
 async function handleSteamRequest() {
-	const lastFetchedData = (await db.select().from(SteamWebAPILastFetched))[0];
+	const lastFetchedData = (await db.select().from(SteamWebAPILastFetched))[0] || {
+		id: 1,
+		time: 0
+	};
 	const now = Date.now();
+
+	// entry does not exist yet
+	if (lastFetchedData.id === 1) {
+		await db.insert(SteamWebAPILastFetched).values({
+			id: 0,
+			time: 0
+		});
+		lastFetchedData.id = 0;
+	}
 
 	// skip if the last request was less than 12 hours ago
 	if (now < lastFetchedData.time + 1000 * 60 * 60 * 12) {
 		return;
 	}
-
-	console.log("LOAD!");
 
 	const [_, knownGames, knownAchievements, knownGameCompletions] = await db.batch([
  		db.update(SteamWebAPILastFetched).set({ time: now }),

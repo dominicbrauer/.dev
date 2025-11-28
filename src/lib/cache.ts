@@ -1,29 +1,46 @@
-interface CacheEntry {
-	
+type CacheEntry<T extends any> = {
+	timestamp: number;
+	ttl: number;
+	data: T;
 };
 
-const data = new Map<string, string>();
+class Cache {
+	private cache = new Map<string, CacheEntry<any>>();
 
-class MyCache {
-
-	public data: Map<string, string>;
-
-	constructor(data: Map<string, string>) {
-		this.data = data;
+	/**
+	 * Gets an entry from cache.
+	 * @param key unique key for cache entry
+	 * @returns data inside cache entry
+	 */
+	public get<T>(key: string): T | undefined {
+		const entry = this.cache.get(key);
+		if (entry && entry.timestamp + entry.ttl < Date.now()) {
+			return undefined;
+		}
+		return entry?.data;
 	}
 
-	public set(key: string, value: string) {
-		this.data.set(key, value);
+	/**
+	 * Inserts or updates an entry in cache.
+	 * @param key unique key for accessing the entry
+	 * @param value any value to store in cache
+	 * @param ttl time-to-live (entry will become `undefined` after ttl ends), default: 30 minutes
+	 */
+	public set(key: string, value: any, ttl: number = 1_800_000) {
+		this.cache.set(key, {
+			timestamp: Date.now(),
+			ttl: ttl,
+			data: value,
+		});
 	}
 
-	public get(key: string) {
-		return this.data.get(key);
+	/**
+	 * Deletes an entry from cache.
+	 * @param key key identifying the entry that should be deleted
+	 */
+	public delete(key: string) {
+		this.cache.delete(key);
 	}
-
-	public deleteEntry(key: string) {
-		this.data.delete(key);
-	}
-
 }
 
-export const mogus = new MyCache(data);
+export const CACHE = new Cache();
