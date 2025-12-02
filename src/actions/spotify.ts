@@ -1,3 +1,4 @@
+import { CACHE } from "@/lib/cache";
 import { SpotifyAccessToken } from "@/lib/spotify/SpotifyAccessToken";
 import { SpotifyWebAPI, type SpotifyWebAPICurrentlyPlayingResponse, type SpotifyWebAPIRecentlyPlayedResponse, type SpotifyWebAPISong } from "@/lib/spotify/SpotifyWebAPI";
 import { defineAction } from "astro:actions";
@@ -14,15 +15,34 @@ export interface ClientSpotifyResponse {
 export const spotify = {
 	request: defineAction({
 		handler: async (): Promise<ClientSpotifyResponse> => {
-			const data = (await db.select().from(SpotifyWebAPICurrentSong))[0];
+			const cachedData = CACHE.get<ClientSpotifyResponse>("spotify_db_entry");
+			if (cachedData) return cachedData;
+
+			let data = (await db.select().from(SpotifyWebAPICurrentSong))[0];
+
+			// database does not have entry yet
+			if (!data) {
+				data = {
+					id: 0,
+					song: "",
+					is_playing: false,
+					access_token: "",
+					fetched_at: 0,
+					token_fetched_at: 0,
+					last_played: null,
+					progress_ms: null
+				};
+				await db.insert(SpotifyWebAPICurrentSong).values(data);
+			}
+
 			const currentUTC = new Date();
 
 			// check if data is outdated (30 seconds)
-			if (currentUTC > new Date(data.fetched_at + 30000)) {
+			if (currentUTC > new Date(data.fetched_at + 30_000)) {
 				const accessToken = new SpotifyAccessToken(data.access_token);
 
 				// check if access token is expired (one hour - puffer)
-				if (currentUTC > new Date(data.token_fetched_at + (3600000 - 10000))) {
+				if (currentUTC > new Date(data.token_fetched_at + (3_600_000 - 10_000))) {
 					await accessToken.refreshAccessToken();
 					data.access_token = accessToken.value;
 					data.token_fetched_at = currentUTC.getTime();
@@ -50,12 +70,14 @@ export const spotify = {
 				await db.update(SpotifyWebAPICurrentSong).set(data).where(eq(SpotifyWebAPICurrentSong.id, 0));
 			}
 
+			CACHE.set("spotify_db_entry", {
+				...data,
+				song: JSON.parse(data.song as string)
+			}, 30_000);
+
 			return {
-				song: JSON.parse(data.song as string),
-				is_playing: data.is_playing,
-				fetched_at: data.fetched_at,
-				progress_ms: data.progress_ms,
-				last_played: data.last_played
+				...data,
+				song: JSON.parse(data.song as string)
 			};
 		}
 	})
