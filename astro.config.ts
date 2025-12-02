@@ -14,12 +14,24 @@ function devRoutes(): AstroIntegration {
     hooks: {
       'astro:config:setup': (params) => {
         if (params.command === 'dev') {
-          params.injectRoute(
-          	{
-	            pattern: '/_test',
-	            entrypoint: './src/pages/_test/index.astro'
-          	}
-          )
+			params.injectRoute(
+				{
+					pattern: '/_test',
+					entrypoint: './src/pages/_test/index.astro'
+				}
+			);
+			params.injectRoute(
+				{
+					pattern: '/_steam',
+					entrypoint: './src/pages/_steam/index.astro'
+				}
+			);
+			params.injectRoute(
+				{
+					pattern: '/_steam/[appid]',
+					entrypoint: './src/pages/_steam/[appid].astro'
+				}
+			);
         }
       }
     }
