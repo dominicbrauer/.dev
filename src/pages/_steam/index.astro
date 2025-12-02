@@ -4,8 +4,10 @@ import Main from "@/layouts/Main.astro";
 import { SteamWebAPIPlayerOwnedGames } from "astro:db";
 import { db } from "astro:db";
 import SteamworksLogo from "@/assets/icons/steamworks.svg";
+import { steam } from "@/actions/steam";
 
 const games = await db.select().from(SteamWebAPIPlayerOwnedGames);
+const test = await Astro.callAction(steam.requestGame, {appid: "asdfgsdfa"});
 ---
 
 <Main title="My Steam Games">

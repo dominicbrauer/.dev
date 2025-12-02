@@ -1,35 +1,32 @@
 import { SteamWebAPI, type SteamWebAPIAchievement } from "@/lib/steam/SteamWebAPI";
 import { db, SteamWebAPIAchievements, SteamWebAPILastFetched, SteamWebAPIPlayerOwnedGames, SteamWebAPIGameCompleted, eq } from "astro:db";
 import { defineMiddleware } from "astro:middleware";
+import { CACHE } from "./lib/cache";
 
 export const onRequest = defineMiddleware(async (context, next) => {
-	if (context.url.pathname.startsWith("/steam")) {
-		await handleSteamRequest();
-	}
+	if (context.url.pathname.startsWith("/steam")) await handleSteamRequest();
 
 	return next();
 });
 
 async function handleSteamRequest() {
-	const lastFetchedData = (await db.select().from(SteamWebAPILastFetched))[0] || {
-		id: 1,
-		time: 0
-	};
+	// skip if data in cache exists
+	if (CACHE.get("steam_db.owned_games")) return;
+
+	let lastFetchedData = (await db.select().from(SteamWebAPILastFetched))[0];
 	const now = Date.now();
 
-	// entry does not exist yet
-	if (lastFetchedData.id === 1) {
-		await db.insert(SteamWebAPILastFetched).values({
+	// db entry does not exist yet
+	if (!lastFetchedData) {
+		lastFetchedData = {
 			id: 0,
 			time: 0
-		});
-		lastFetchedData.id = 0;
+		};
+		await db.insert(SteamWebAPILastFetched).values(lastFetchedData);
 	}
 
 	// skip if the last request was less than 12 hours ago
-	if (now < lastFetchedData.time + 43_200_000) {
-		return;
-	}
+	if (now < lastFetchedData.time + 43_200_000) return;
 
 	const [_, knownGames, knownAchievements, knownGameCompletions] = await db.batch([
  		db.update(SteamWebAPILastFetched).set({ time: now }),
@@ -37,9 +34,8 @@ async function handleSteamRequest() {
 		db.select().from(SteamWebAPIAchievements),
 		db.select().from(SteamWebAPIGameCompleted)
 	]);
-	const steamAPI = new SteamWebAPI();
 
-	const games = await steamAPI.requestPlayerOwnedGames() || [];
+	const games = await SteamWebAPI.requestPlayerOwnedGames() || [];
 
 	const gameQueries: any[] = [];
 	const achievementQueries: any[] = [];
@@ -60,7 +56,7 @@ async function handleSteamRequest() {
 			);
 		}
 
-		achievementPromises.push(steamAPI.requestGameAchievements(game.appid));
+		achievementPromises.push(SteamWebAPI.requestGameAchievements(game.appid));
 	}
 
 	const resolvedAchievements = (await Promise.all(achievementPromises)).filter((value) => !!value).flat();

@@ -13,9 +13,13 @@ export interface ClientSpotifyResponse {
 }
 
 export const spotify = {
-	request: defineAction({
+
+	/**
+	 * Gets spotify song data.
+	 */
+	requestData: defineAction({
 		handler: async (): Promise<ClientSpotifyResponse> => {
-			const cachedData = CACHE.get<ClientSpotifyResponse>("spotify_db_entry");
+			const cachedData = CACHE.get<ClientSpotifyResponse>("spotify_db.entry");
 			if (cachedData) return cachedData;
 
 			let data = (await db.select().from(SpotifyWebAPICurrentSong))[0];
@@ -70,7 +74,7 @@ export const spotify = {
 				await db.update(SpotifyWebAPICurrentSong).set(data).where(eq(SpotifyWebAPICurrentSong.id, 0));
 			}
 
-			CACHE.set("spotify_db_entry", {
+			CACHE.set("spotify_db.entry", {
 				...data,
 				song: JSON.parse(data.song as string)
 			}, 30_000);
@@ -81,4 +85,5 @@ export const spotify = {
 			};
 		}
 	})
+
 }

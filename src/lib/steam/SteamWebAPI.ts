@@ -73,7 +73,7 @@ export class SteamWebAPI {
 	 * @param type type of the image (header, library_hero, logo)
 	 * @returns url string to that image
 	 */
-	public getGameImage(appid: string, type: ImageType) {
+	public static getGameImage(appid: string, type: ImageType) {
 		return `https://cdn.akamai.steamstatic.com/steam/apps/${appid}/${imageTypes.get(type)}`;
 	}
 
@@ -82,7 +82,7 @@ export class SteamWebAPI {
 	 * @param appid the id for the specific game
 	 * @returns list of achievements
 	 */
-	public async requestGameAchievements(appid: string): Promise<SteamWebAPIAchievement[] | undefined> {
+	public static async requestGameAchievements(appid: string): Promise<SteamWebAPIAchievement[] | undefined> {
 		try {
 			const gameSchemaURL = new URL("https://api.steampowered.com/ISteamUserStats/GetSchemaForGame/v2/");
 			gameSchemaURL.search = new URLSearchParams({
@@ -135,7 +135,7 @@ export class SteamWebAPI {
 	 * Retrieves all games a player owns.
 	 * @returns list of games
 	 */
-	public async requestPlayerOwnedGames(): Promise<SteamWebAPIPlayerOwnedGame[] | undefined> {
+	public static async requestPlayerOwnedGames(): Promise<SteamWebAPIPlayerOwnedGame[] | undefined> {
 
 		try {
 			const url = new URL("https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/");

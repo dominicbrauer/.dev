@@ -6,7 +6,7 @@ import "@/styles/songDisplay.css";
 import { DiscIcon, MicVocalIcon, SquarePauseIcon } from "@lucide/astro";
 import Timeline from "@/components/SongDisplay/Timeline.astro";
 
-const { data, error } = await Astro.callAction(actions.spotify.request, {});
+const { data, error } = await Astro.callAction(actions.spotify.requestData, {});
 ---
 
 { (!error && data) ? (
@@ -97,7 +97,7 @@ const { data, error } = await Astro.callAction(actions.spotify.request, {});
 	 * the newest data available.
 	 */
 	async function update() {
-		const { data, error } = await actions.spotify.request();
+		const { data, error } = await actions.spotify.requestData();
 
 		if (error) {
 			console.log("Error while fetching new song data: " + error);
@@ -117,7 +117,7 @@ const { data, error } = await Astro.callAction(actions.spotify.request, {});
 		songDisplay!.dataset.offline = String(!data.is_playing);
 
 		songArtistsWrapper!.innerHTML = "";
-		
+
 		songCover!.src = data.song.album.images[0].url;
 		songCover!.width = data.song.album.images[0].width;
 		songCover!.height = data.song.album.images[0].height;
