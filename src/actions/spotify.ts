@@ -70,7 +70,10 @@ export const spotify = {
 				await db.update(SpotifyWebAPICurrentSong).set(data).where(eq(SpotifyWebAPICurrentSong.id, 0));
 			}
 
-			CACHE.set("spotify_db_entry", data, 30_000);
+			CACHE.set("spotify_db_entry", {
+				...data,
+				song: JSON.parse(data.song as string)
+			}, 30_000);
 
 			return {
 				...data,

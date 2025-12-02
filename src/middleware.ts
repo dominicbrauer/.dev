@@ -27,7 +27,7 @@ async function handleSteamRequest() {
 	}
 
 	// skip if the last request was less than 12 hours ago
-	if (now < lastFetchedData.time + 1000 * 60 * 60 * 12) {
+	if (now < lastFetchedData.time + 43_200_000) {
 		return;
 	}
 
