@@ -24,6 +24,7 @@ export const steam = {
 				return games;
 			}
 
+			console.log("GAME FETCH");
 			games = await db.select().from(SteamWebAPIPlayerOwnedGames);
 
 			CACHE.set("steam_db.player_games", games, 43_200_000);
@@ -47,6 +48,7 @@ export const steam = {
 
 			if (achievements) return achievements.filter((achievement) => achievement.appid === appid);
 
+			console.log("ACHIEVEMENT FETCH");
 			achievements = await db.select().from(SteamWebAPIAchievements);
 
 			CACHE.set("steam_db.owned_games", achievements, 43_200_000);
@@ -69,6 +71,7 @@ export const steam = {
 
 			if (completions) return completions.find((completion) => completion.appid === appid)!.complete;
 
+			console.log("COMPLETION FETCH");
 			completions = await db.select().from(SteamWebAPIGameCompleted);
 
 			CACHE.set("steam_db.game_completions", completions, 43_200_000);
