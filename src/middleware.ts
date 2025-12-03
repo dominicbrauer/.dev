@@ -13,6 +13,8 @@ async function handleSteamRequest() {
 	// skip if data in cache exists
 	if (CACHE.get("steam_db.owned_games")) return;
 
+	console.log("MOGUS");
+
 	let [lastFetchedData] = await db.select().from(SteamWebAPILastFetched);
 	const now = Date.now();
 
@@ -27,6 +29,8 @@ async function handleSteamRequest() {
 
 	// skip if the last request was less than 12 hours ago
 	if (now < lastFetchedData.time + 43_200_000) return;
+
+	console.log("RUN MOGUS");
 
 	const [_, knownGames, knownAchievements, knownGameCompletions] = await db.batch([
  		db.update(SteamWebAPILastFetched).set({ time: now }),
