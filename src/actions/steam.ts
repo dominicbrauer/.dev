@@ -71,6 +71,7 @@ export const steam = {
 
 			if (completions) return completions.find((completion) => completion.appid === appid)!.complete;
 
+			console.log(CACHE.cache.keys());
 			console.log("COMPLETION FETCH");
 			completions = await db.select().from(SteamWebAPIGameCompleted);
 

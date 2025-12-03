@@ -4,8 +4,14 @@ type CacheEntry<T extends any> = {
 	data: T;
 };
 
+const cache = new Map<string, CacheEntry<any>>();
+
 class Cache {
-	private cache = new Map<string, CacheEntry<any>>();
+	public cache = new Map<string, CacheEntry<any>>();
+
+	constructor(c: Map<string, CacheEntry<any>>) {
+		this.cache = cache
+	}
 
 	/**
 	 * Gets an entry from cache.
@@ -43,4 +49,4 @@ class Cache {
 	}
 }
 
-export const CACHE = new Cache();
+export const CACHE = new Cache(cache);
