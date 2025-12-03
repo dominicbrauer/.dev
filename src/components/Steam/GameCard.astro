@@ -1,11 +1,9 @@
 ---
 import { getImage, Image } from 'astro:assets';
 import { SteamWebAPI, type SteamWebAPIPlayerOwnedGame } from '@/lib/steam/SteamWebAPI';
-import { db } from 'astro:db';
-import { SteamWebAPIGameCompleted } from 'astro:db';
-import { eq } from 'astro:db';
 import PortraitPlaceholder from "@/assets/images/portrait-placeholder.png";
 import { AwardIcon } from "@lucide/astro/icons";
+import { steam } from '@/actions/steam';
 
 type Props = {
 	game: SteamWebAPIPlayerOwnedGame
@@ -13,17 +11,26 @@ type Props = {
 
 const { game } = Astro.props;
 
-const steamAPI = new SteamWebAPI();
-const isComplete = (await db.select().from(SteamWebAPIGameCompleted).where(eq(SteamWebAPIGameCompleted.appid, game.appid)))[0].complete;
+const [
+	{ data: isComplete, error: completionError },
+	portraitPlaceholder
+] = await Promise.all([
+	Astro.callAction(steam.getCompletionStatus, {appid: game.appid}),
+	getImage({src: PortraitPlaceholder, format: "webp"})
+]);
 
-const portraitPlaceholder = await getImage({src: PortraitPlaceholder, format: "webp"});
+// const { data: isComplete, error: completionError } = await Astro.callAction(steam.getCompletionStatus, {appid: game.appid});
+
+if (completionError) return Astro.redirect("/500?error=ACTION_ERROR");
+
+// const portraitPlaceholder = await getImage({src: PortraitPlaceholder, format: "webp"});
 ---
 
 <a class="game-card" href=`/steam/${game.appid}`>
 	<div class="game-wrapper">
 		<Image
 			class="skeleton-animation"
-			src={steamAPI.getGameImage(game.appid, "portrait")}
+			src={SteamWebAPI.getGameImage(game.appid, "portrait")}
 			alt=`Game portrait header for ${game.name}.`
 			loading="lazy"
 			width="600"
@@ -52,7 +59,7 @@ const portraitPlaceholder = await getImage({src: PortraitPlaceholder, format: "w
 		position: relative;
 		display: flex;
 		overflow: hidden;
-		box-shadow: 
+		box-shadow:
 			0px -4px 16px -4px rgba(255, 255, 255, .1),
 			inset 0 0 8px 4px rgba(0, 0, 0, .5);
 	}

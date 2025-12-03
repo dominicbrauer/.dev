@@ -20,18 +20,6 @@ function devRoutes(): AstroIntegration {
 					entrypoint: './src/pages/_test/index.astro'
 				}
 			);
-			params.injectRoute(
-				{
-					pattern: '/_steam',
-					entrypoint: './src/pages/_steam/index.astro'
-				}
-			);
-			params.injectRoute(
-				{
-					pattern: '/_steam/[appid]',
-					entrypoint: './src/pages/_steam/[appid].astro'
-				}
-			);
         }
       }
     }

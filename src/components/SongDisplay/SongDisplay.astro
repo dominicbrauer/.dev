@@ -9,7 +9,7 @@ import Timeline from "@/components/SongDisplay/Timeline.astro";
 const { data, error } = await Astro.callAction(actions.spotify.requestData, {});
 ---
 
-{ (!error && data) ? (
+{ (data && !error) ? (
 	<div class="song-display card cflex" data-offline={!data.is_playing}>
 		<div class="cover-wrapper">
 			<Image

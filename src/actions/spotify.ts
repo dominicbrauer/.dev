@@ -22,7 +22,7 @@ export const spotify = {
 			const cachedData = CACHE.get<ClientSpotifyResponse>("spotify_db.entry");
 			if (cachedData) return cachedData;
 
-			let data = (await db.select().from(SpotifyWebAPICurrentSong))[0];
+			let [data] = await db.select().from(SpotifyWebAPICurrentSong);
 
 			// database does not have entry yet
 			if (!data) {

@@ -1,0 +1,12 @@
+---
+import Main from "@/layouts/Main.astro";
+
+const searchParams = Astro.url.searchParams;
+---
+
+<Main title="500">
+	<h1>Server Error</h1>
+	<p>Rendering the page you requested resulted in a server error.</p>
+	<br>
+	<span>Error: {searchParams.get("error")}</span>
+</Main>

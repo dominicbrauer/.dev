@@ -3,25 +3,46 @@ import { getImage, Image } from "astro:assets";
 import Main from "@/layouts/Main.astro";
 import { ClockFadingIcon, AwardIcon, TableOfContentsIcon, LayoutGridIcon } from "@lucide/astro/icons";
 import { SteamWebAPI } from "@/lib/steam/SteamWebAPI";
-import { db, eq, SteamWebAPIPlayerOwnedGames, SteamWebAPIAchievements, SteamWebAPIGameLogoPositioning, SteamWebAPIGameCompleted } from "astro:db";
 import Achievement from "@/components/Steam/Achievement.astro";
 import SteamworksLogo from "@/assets/icons/steamworks.svg";
 import HeaderPlaceholder from "@/assets/images/header-placeholder.png";
+import { steam } from "@/actions/steam";
+import { LOGO_POSITIONING } from "@/lib/consts";
 
 const { appid } = Astro.params;
 
-const game = (await db.select().from(SteamWebAPIPlayerOwnedGames).where(eq(SteamWebAPIPlayerOwnedGames.appid, appid!)))[0];
-if (!game) return Astro.redirect("/404?error=INVALID_APPID");
-console.log(appid, game);
-const achievements = await db.select().from(SteamWebAPIAchievements).where(eq(SteamWebAPIAchievements.appid, appid!));
-console.log(achievements.length);
-const steamAPI = new SteamWebAPI();
+///
+if (!appid) return Astro.redirect("/404?error=glückwunsch_wie_auch_immer_du_hier_hingekommen_bist");
+///
 
-const isComplete = (await db.select().from(SteamWebAPIGameCompleted).where(eq(SteamWebAPIGameCompleted.appid, game.appid)))[0].complete;
-const achievedCount = achievements.filter((achievement) => achievement.achieved).length;
-const logoPositioning = (await db.select().from(SteamWebAPIGameLogoPositioning).where(eq(SteamWebAPIGameLogoPositioning.appid, game.appid)))[0];
+const [
+	{ data: games, error: gamesError },
+	{ data: achievements, error: achievementsError },
+	{ data: isComplete, error: completionError },
+	headerPlaceholder
+] = await Promise.all([
+	Astro.callAction(steam.getGames, {appid}),
+	Astro.callAction(steam.getAchievements, {appid}),
+	Astro.callAction(steam.getCompletionStatus, {appid}),
+	getImage({src: HeaderPlaceholder, format: "webp"})
+]);
 
-const headerPlaceholder = await getImage({src: HeaderPlaceholder, format: "webp"});
+// const { data: games, error: gamesError } = await Astro.callAction(steam.getGames, {appid});
+
+if (gamesError || achievementsError || completionError) return Astro.redirect("/500?error=ACTION_ERROR");
+if (games.length === 0) return Astro.redirect("/404?error=INVALID_APPID");
+
+const [game] = games;
+
+// const { data: achievements, error: achievementsError } = await Astro.callAction(steam.getAchievements, {appid});
+
+// const { data: isComplete, error: completionError } = await Astro.callAction(steam.getCompletionStatus, {appid});
+
+const achievedCount = achievements?.filter((achievement) => achievement.achieved).length;
+
+const logoPositioning = LOGO_POSITIONING.get(appid);
+
+// const headerPlaceholder = await getImage({src: HeaderPlaceholder, format: "webp"});
 ---
 
 <Main title={game.name}>
@@ -29,25 +50,25 @@ const headerPlaceholder = await getImage({src: HeaderPlaceholder, format: "webp"
 		<div class="banner-wrapper">
 			<Image
 				class="banner"
-				src={steamAPI.getGameImage(game.appid, "library_hero")}
+				src={SteamWebAPI.getGameImage(game.appid, "library_hero")}
 				alt=`Game panorama header for ${game.name}.`
 				width="1920"
 				height="620"
-				loading="lazy"
+				loading="eager"
 				onerror=`this.src="${headerPlaceholder.src}";`
 			/>
 			<Image
 				class="logo"
-				src={steamAPI.getGameImage(game.appid, "logo")}
+				src={SteamWebAPI.getGameImage(game.appid, "logo")}
 				alt=`Game logo for ${game.name}.`
 				width="640"
 				height="160"
-				loading="lazy"
+				loading="eager"
 				onerror="this.style.display='none';"
 				style={
-					`top: ${logoPositioning?.y || 50}%;
-					left: ${logoPositioning?.x || 50}%;
-					transform: translate(-${logoPositioning?.x || 50}%, -${logoPositioning?.y || 50}%);`
+					`top: ${logoPositioning?.[1] ?? 50}%;
+					left: ${logoPositioning?.[0] ?? 50}%;
+					transform: translate(-${logoPositioning?.[0] ?? 50}%, -${logoPositioning?.[1] ?? 50}%);`
 				}
 			/>
 		</div>
@@ -97,7 +118,7 @@ const headerPlaceholder = await getImage({src: HeaderPlaceholder, format: "webp"
 		display: flex;
 		position: relative;
 		max-width: 1200px;
-		box-shadow: 
+		box-shadow:
 			0px -4px 8px 0px rgba(255, 255, 255, .1),
 			inset 0 0 8px 4px rgba(0, 0, 0, .5);
 		margin-bottom: var(--size-xl);

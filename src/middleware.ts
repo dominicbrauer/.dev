@@ -13,7 +13,7 @@ async function handleSteamRequest() {
 	// skip if data in cache exists
 	if (CACHE.get("steam_db.owned_games")) return;
 
-	let lastFetchedData = (await db.select().from(SteamWebAPILastFetched))[0];
+	let [lastFetchedData] = await db.select().from(SteamWebAPILastFetched);
 	const now = Date.now();
 
 	// db entry does not exist yet
