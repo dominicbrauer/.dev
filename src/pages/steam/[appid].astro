@@ -11,38 +11,32 @@ import { LOGO_POSITIONING } from "@/lib/consts";
 
 const { appid } = Astro.params;
 
-///
+// ========== //
 if (!appid) return Astro.redirect("/404?error=glückwunsch_wie_auch_immer_du_hier_hingekommen_bist");
-///
+// ========== //
 
 const [
 	{ data: games, error: gamesError },
-	{ data: achievements, error: achievementsError },
-	{ data: isComplete, error: completionError },
+	{ data: achievementData, error: achievementsError },
 	headerPlaceholder
 ] = await Promise.all([
 	Astro.callAction(steam.getGames, {appid}),
 	Astro.callAction(steam.getAchievements, {appid}),
-	Astro.callAction(steam.getCompletionStatus, {appid}),
 	getImage({src: HeaderPlaceholder, format: "webp"})
 ]);
 
-// const { data: games, error: gamesError } = await Astro.callAction(steam.getGames, {appid});
+if (gamesError || achievementsError) {
+	return Astro.redirect("/500?error=ACTION_ERROR");
+}
 
-if (gamesError || achievementsError || completionError) return Astro.redirect("/500?error=ACTION_ERROR");
 if (games.length === 0) return Astro.redirect("/404?error=INVALID_APPID");
 
+const { achievements, complete } = achievementData;
 const [game] = games;
 
-// const { data: achievements, error: achievementsError } = await Astro.callAction(steam.getAchievements, {appid});
-
-// const { data: isComplete, error: completionError } = await Astro.callAction(steam.getCompletionStatus, {appid});
-
-const achievedCount = achievements?.filter((achievement) => achievement.achieved).length;
+const achievedCount = achievements.filter((achievement) => achievement.achieved).length;
 
 const logoPositioning = LOGO_POSITIONING.get(appid);
-
-// const headerPlaceholder = await getImage({src: HeaderPlaceholder, format: "webp"});
 ---
 
 <Main title={game.name}>
@@ -80,7 +74,7 @@ const logoPositioning = LOGO_POSITIONING.get(appid);
 					<span>{(game.playtime_forever / 60).toFixed(1)} hours</span>
 				</div>
 				<div class="info-wrapper achievements rflex">
-					<AwardIcon class:list={[isComplete && "award-icon-golden"]} />
+					<AwardIcon class:list={[complete && "award-icon-golden"]} />
 					<span>{`${achievedCount}/${achievements.length}`} achievements</span>
 				</div>
 			</div>
