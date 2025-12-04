@@ -3,12 +3,12 @@ import { db, SteamWebAPIAchievements, SteamWebAPILastFetched, SteamWebAPIPlayerO
 import { defineMiddleware } from "astro:middleware";
 import { CACHE } from "./lib/cache";
 
-export const onRequest = defineMiddleware(async (context, next) => {
-	// if (context.url.pathname.startsWith("/steam")) await handleSteamRequest();
-	console.log("");
+// export const onRequest = defineMiddleware(async (context, next) => {
+// 	// if (context.url.pathname.startsWith("/steam")) await handleSteamRequest();
+// 	console.log("");
 
-	return await next();
-});
+// 	return await next();
+// });
 
 async function handleSteamRequest() {
 	let [lastFetchedData] = await db.select().from(SteamWebAPILastFetched);
