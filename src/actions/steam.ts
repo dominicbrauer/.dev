@@ -19,7 +19,7 @@ export const steam = {
 
 			if (games) {
 				if (appid) {
-					// await steam.getAchievements({ appid }); // guarantee that achievements exist
+					await steam.getAchievements({ appid }); // guarantee that achievements exist
 					return games.filter((game) => game.appid === appid);
 				}
 				return games;
@@ -30,7 +30,7 @@ export const steam = {
 			CACHE.set("steam_db.player_games", games, 43_200_000);
 
 			if (appid) {
-				// await steam.getAchievements({ appid }); // guarantee that achievements exist
+				await steam.getAchievements({ appid }); // guarantee that achievements exist
 				return games.filter((game) => game.appid === appid);
 			}
 			return games;
