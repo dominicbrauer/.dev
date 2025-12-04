@@ -60,10 +60,10 @@ const SteamWebAPIGameLogoPositioning = defineTable({
 export default defineDb({
 	tables: {
 		SpotifyWebAPICurrentSong,
-		SteamWebAPILastFetched,
-		SteamWebAPIPlayerOwnedGames,
-		SteamWebAPIAchievements,
-		SteamWebAPIGameLogoPositioning,
-		SteamWebAPIGameCompleted
+		// SteamWebAPILastFetched,
+		// SteamWebAPIPlayerOwnedGames,
+		// SteamWebAPIAchievements,
+		// SteamWebAPIGameLogoPositioning,
+		// SteamWebAPIGameCompleted
 	}
 });

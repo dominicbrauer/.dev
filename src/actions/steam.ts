@@ -17,22 +17,17 @@ export const steam = {
 		handler: async ({appid}): Promise<SteamWebAPIPlayerOwnedGame[]> => {
 			let games = CACHE.get<SteamWebAPIPlayerOwnedGame[]>("steam_db.player_games");
 
-			if (games) {
-				if (appid) {
-					await steam.getAchievements({ appid }); // guarantee that achievements exist
-					return games.filter((game) => game.appid === appid);
-				}
-				return games;
+			if (!games) {
+				games = await SteamWebAPI.requestPlayerOwnedGames() || [];
+
+				CACHE.set(
+					"steam_db.player_games",
+					games,
+					43_200_000
+				);
 			}
 
-			games = await SteamWebAPI.requestPlayerOwnedGames() || [];
-
-			CACHE.set("steam_db.player_games", games, 43_200_000);
-
-			if (appid) {
-				await steam.getAchievements({ appid }); // guarantee that achievements exist
-				return games.filter((game) => game.appid === appid);
-			}
+			if (appid) return games.filter((game) => game.appid === appid);
 			return games;
 		}
 	}),
@@ -40,41 +35,38 @@ export const steam = {
 	/**
 	 * Gets all steam achievements for a game.
 	 * @param appid id specifying the game
-	 * @returns list of achievements
+	 * @returns object with list of achievements and completion info
 	 */
 	getAchievements: defineAction({
 		input: z.object({
 			appid: z.string()
 		}),
-		handler: async ({appid}): Promise<SteamWebAPIAchievement[]> => {
-			let achievements = CACHE.get<SteamWebAPIAchievement[]>(`steam_db.player_achievements.${appid}`);
+		handler: async ({ appid }): Promise<{ achievements: SteamWebAPIAchievement[], complete: boolean }> => {
+			let achievements = CACHE.get<SteamWebAPIAchievement[]>(`steam_db.game_achievements.${appid}`);
 
-			if (achievements) return achievements.filter((achievement) => achievement.appid === appid);
+			if (!achievements) {
+				achievements = await SteamWebAPI.requestGameAchievements(appid) || [];
 
-			achievements = await SteamWebAPI.requestGameAchievements(appid) || [];
+				CACHE.set(
+					`steam_db.game_achievements.${appid}`,
+					achievements,
+					43_200_000
+				);
+			}
 
-			CACHE.set(`steam_db.player_achievements.${appid}`, achievements, 43_200_000);
+			let complete = CACHE.get<boolean>(`steam_db.game_completion.${appid}`);
 
-			return achievements.filter((achievement) => achievement.appid === appid);
-		}
-	}),
+			if (complete === undefined) {
+				complete = achievements.length > 0 && achievements.every((achievement) => achievement.achieved);
 
-	/**
-	 * Gets the completion status for an owned steam game.
-	 * @param appid id specifying the game
-	 * @returns true if completed
-	 */
-	getCompletionStatus: defineAction({
-		input: z.object({
-			appid: z.string()
-		}),
-		handler: async ({appid}): Promise<boolean> => {
-			// contributed by Kim Wolf
-			const { data: achievements, error } = await steam.getAchievements({ appid });
+				CACHE.set(
+					`steam_db.game_completion.${appid}`,
+					complete,
+					43_200_000
+				);
+			}
 
-			if (achievements) return achievements.every((achievement) => achievement.achieved);
-
-			return false;
+			return { achievements, complete };
 		}
 	})
 

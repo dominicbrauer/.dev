@@ -11,19 +11,15 @@ type Props = {
 
 const { game } = Astro.props;
 
-const [
-	{ data: isComplete, error: completionError },
-	portraitPlaceholder
-] = await Promise.all([
-	Astro.callAction(steam.getCompletionStatus, {appid: game.appid}),
-	getImage({src: PortraitPlaceholder, format: "webp"})
-]);
+const portraitPlaceholder = await getImage({src: PortraitPlaceholder, format: "webp"});
 
-// const { data: isComplete, error: completionError } = await Astro.callAction(steam.getCompletionStatus, {appid: game.appid});
+const { data: achievementData, error } = await Astro.callAction(steam.getAchievements, { appid: game.appid });
 
-if (completionError) return Astro.redirect("/500?error=ACTION_ERROR");
+if (error) {
+	return Astro.redirect("/500?error=ACTION_ERROR");
+}
 
-// const portraitPlaceholder = await getImage({src: PortraitPlaceholder, format: "webp"});
+const { achievements, complete } = achievementData;
 ---
 
 <a class="game-card" href=`/steam/${game.appid}`>
@@ -38,10 +34,10 @@ if (completionError) return Astro.redirect("/500?error=ACTION_ERROR");
 			onerror=`this.src="${portraitPlaceholder.src}";`
 		/>
 		<div class="title-card">
-			<h2 class:list={[isComplete && "golden"]}>{game.name}</h2>
+			<h2 class:list={[complete && "golden"]}>{game.name}</h2>
 		</div>
 	</div>
-	{ isComplete && (
+	{ complete && (
 		<div class="badge">
 			<AwardIcon />
 		</div>
