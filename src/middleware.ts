@@ -4,7 +4,7 @@ import { defineMiddleware } from "astro:middleware";
 import { CACHE } from "./lib/cache";
 
 export const onRequest = defineMiddleware(async (context, next) => {
-	if (context.url.pathname.startsWith("/steam")) await handleSteamRequest();
+	// if (context.url.pathname.startsWith("/steam")) await handleSteamRequest();
 
 	return next();
 });
