@@ -26,8 +26,12 @@ function devRoutes(): AstroIntegration {
   }
 }
 
+const site = process.env.DOKPLOY_DEPLOY_URL
+	? `https://${process.env.DOKPLOY_DEPLOY_URL}`
+	: "https://dominicbrauer.dev";
+
 export default defineConfig({
-  site: "https://dominicbrauer.dev",
+  site,
   output: "server",
 
   devToolbar: {
