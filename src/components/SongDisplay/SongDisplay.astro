@@ -2,7 +2,6 @@
 import { Image } from "astro:assets";
 import { actions } from "astro:actions";
 import { getFormatedTime } from "@/lib/helpers";
-import "@/styles/songDisplay.css";
 import { DiscIcon, MicVocalIcon, SquarePauseIcon } from "@lucide/astro";
 import Timeline from "@/components/SongDisplay/Timeline.astro";
 
@@ -10,7 +9,7 @@ const { data, error } = await Astro.callAction(actions.spotify.requestData, {});
 ---
 
 { (data && !error) ? (
-	<div class="song-display card cflex" data-offline={!data.is_playing}>
+	<div class="song-display cflex" data-offline={!data.is_playing}>
 		<div class="cover-wrapper">
 			<Image
 				class="song-cover"
@@ -75,7 +74,113 @@ const { data, error } = await Astro.callAction(actions.spotify.requestData, {});
 )}
 
 <style>
+	@import url("@/styles/songDisplayAngle.css");
+
 	.song-display[data-offline="true"]:global(.song-display .timeline) {
+		display: none;
+	}
+
+	.song-display {
+		gap: var(--size-s);
+	}
+
+	.song-information-wrapper {
+		display: grid;
+		width: 100%;
+		grid-template-columns: 24px 1fr;
+		gap: var(--size-2xs) var(--size-xs);
+	}
+
+	.cover-wrapper {
+		position: relative;
+		display: flex;
+		overflow: visible;
+		z-index: 0;
+	}
+
+	.song-cover {
+		aspect-ratio: 1 / 1;
+		width: 100%;
+		height: auto;
+		border: 2px solid var(--bg);
+	}
+
+	.song-display .cover-wrapper::after,
+	.song-display .cover-wrapper::before {
+		content: '';
+		position: absolute;
+		height: 100%;
+		width: 100%;
+		background-image: conic-gradient(from var(--angle), transparent 70%, var(--primary));
+		top: 50%;
+		left: 50%;
+		translate: -50% -50%;
+		z-index: -1;
+		padding: 2px;
+		animation: borderRotate 6s cubic-bezier(0.55, 0.25, 0.45, 0.75) infinite;
+	}
+
+	.song-display[data-offline="true"] .cover-wrapper::after,
+	.song-display[data-offline="true"] .cover-wrapper::before {
+		background-image: conic-gradient(from var(--angle), transparent 70%, var(--text-muted));
+		animation: borderRotate 12s cubic-bezier(0.55, 0.25, 0.45, 0.75) infinite;
+	}
+
+	.cover-wrapper::before {
+		filter: blur(.5em);
+	}
+
+	/* property angle moved to `src/styles/songDisplayAngle`
+			to avoid breaking the code highlighting */
+	@keyframes borderRotate {
+		0% { --angle: 0deg; }
+		100% { --angle: 360deg; }
+	}
+
+	.song-title {
+		font-size: 1.5em;
+		font-weight: 500;
+		grid-column: span 2;
+		margin-bottom: var(--size-3xs);
+	}
+
+	.song-title a {
+		color: var(--text);
+	}
+
+	.mic-svg, .disc-svg {
+		grid-column-start: 1;
+	}
+
+	.artists-wrapper, .album-wrapper, .listened {
+		display: flex;
+		grid-column-start: 2;
+		align-items: center;
+	}
+
+	.song-information-wrapper svg {
+		position: relative;
+		aspect-ratio: 1 / 1;
+		height: 24px;
+		width: auto;
+	}
+
+	.song-display .last-played {
+		font-style: italic;
+		display: flex;
+		align-items: center;
+	}
+
+	.song-display[data-offline="true"] .song-cover {
+		filter: grayscale();
+	}
+
+	.song-display[data-offline="true"] .song-title a {
+		color: var(--text-muted);
+	}
+
+	.song-display[data-offline="false"] .pause-icon,
+	.song-display[data-offline="false"] .last-played {
 		display: none;
 	}
 </style>

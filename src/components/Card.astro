@@ -1,0 +1,32 @@
+---
+type Props = {
+	width?: number;
+	height?: number;
+	heading?: string;
+}
+
+const { width, height, heading } = Astro.props;
+---
+
+<div class="card cflex" style=`width: ${width + "px" || "auto"}; height: ${height + "px" || "auto"};`>
+	{heading && (
+		<h2>{heading}</h2>
+	)}
+	<div class="card-content">
+		<slot />
+	</div>
+</div>
+
+<style>
+	.card {
+		border: 1px solid var(--border);
+		background-color: var(--bg);
+		height: fit-content;
+		padding: var(--size-l);
+	}
+
+	h2 {
+		margin-bottom: var(--size-m);
+		color: var(--text);
+	}
+</style>
