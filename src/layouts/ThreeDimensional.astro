@@ -1,0 +1,97 @@
+---
+import Footer from "@/components/Footer.astro";
+import NavBar from "@/components/NavBar.astro";
+import ProfilePicture from "@/assets/images/profile.webp";
+import "@/styles/global.css";
+import "@/styles/sizing.css";
+
+type Props = {
+	title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.png" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="generator" content={Astro.generator} />
+		<meta property="og:title" content={title}>
+		<meta property="og:description" content="My personal portfolio website.">
+		<meta property="og:image" content={ProfilePicture.src}>
+		<meta property="og:url" content="https://dominicbrauer.dev">
+		<title>{title}</title>
+		<script
+			src="https://rybbit.dominicbrauer.dev/api/script.js"
+			data-site-id="322a6b9d53c0"
+			defer
+			is:inline
+		/>
+	</head>
+	<body class="cflex">
+		<div class="content">
+			<canvas id="canvas" />
+			<NavBar />
+			<main class="cflex">
+				<slot />
+			</main>
+		</div>
+		<Footer />
+	</body>
+</html>
+
+<style>
+	body {
+		min-height: 100dvh;
+		background-color: var(--bg-dark);
+	}
+
+	.content {
+		position: relative;
+	}
+
+	main {
+		padding:
+			calc(var(--navbar-height) + var(--size-xl))
+			var(--size-l)
+			var(--size-xl)
+			var(--size-l);
+		max-width: 1200px;
+		width: 100%;
+		position: relative;
+		left: 50%;
+		transform: translateX(-50%);
+		flex-grow: 1;
+	}
+
+	#canvas {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		border: 10px solid red;
+	}
+</style>
+
+<script>
+	class ThreeDimensionalRoom {
+
+		private readonly canvas: HTMLCanvasElement;
+		private readonly ctx: CanvasRenderingContext2D;
+		private readonly width: number;
+		private readonly height: number;
+
+		constructor(canvas: HTMLCanvasElement) {
+			this.canvas = canvas;
+			this.ctx = this.canvas.getContext("2d")!;
+			this.width = this.canvas.width;
+			this.height = this.canvas.height;
+			this.ctx.strokeStyle = "#ffffff";
+		}
+
+	}
+
+	const room = new ThreeDimensionalRoom(document.getElementById('canvas') as HTMLCanvasElement);
+</script>

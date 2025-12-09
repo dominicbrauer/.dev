@@ -1,14 +1,11 @@
 ---
-import Main from "@/layouts/Main.astro";
 import WebringBadge from "astro-webrings/badge";
 import SongDisplay from "@/components/SongDisplay/SongDisplay.astro";
 import SongDisplaySkeleton from "@/components/SongDisplay/SongDisplaySkeleton.astro";
+import ThreeDimensional from "@/layouts/ThreeDimensional.astro";
 ---
 
-<Main title="Dominic Brauer">
-	<!--<section class="hero">
-		<h1>Dominic Brauer</h1>
-	</section>-->
+<ThreeDimensional title="Dominic Brauer">
 	<section class="grid-area cflex">
 		<SongDisplay server:defer>
 			<SongDisplaySkeleton slot="fallback" />
@@ -22,7 +19,7 @@ import SongDisplaySkeleton from "@/components/SongDisplay/SongDisplaySkeleton.as
 			/>
 		</div>
 	</section>
-</Main>
+</ThreeDimensional>
 
 <style>
 	.hero {
